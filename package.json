@@ -1,21 +1,42 @@
 {
   "name": "trades-website-app",
   "private": true,
+  "type": "module",
   "scripts": {
-    "build": "turbo run build",
+    "build": "turbo build",
+    "build:schemas": "pnpm --filter @trades/schemas build",
     "dev": "turbo run dev --parallel",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "lint": "eslint \"apps/web/**/*.{ts,tsx,js,jsx}\" \"packages/**/*.{ts,tsx,js,jsx}\" --ignore-pattern .next/** --ignore-pattern dist/** --ignore-pattern coverage/** --ignore-pattern node_modules/** --ignore-pattern **/*.d.ts --ignore-pattern apps/**/next-env.d.ts --max-warnings=0",
+    "test": "vitest run",
+    "format": "prettier --write .",
+    "check-types": "pnpm -F web exec tsc --noEmit && pnpm -F @trades/schemas exec tsc -p tsconfig.json --noEmit && pnpm -F @repo/ui exec tsc -p tsconfig.json --noEmit",
+    "typecheck": "pnpm -F web exec tsc --noEmit && pnpm -F @trades/schemas exec tsc -p tsconfig.json --noEmit && pnpm -F @repo/ui exec tsc -p tsconfig.json --noEmit",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,md,css}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   },
   "devDependencies": {
+    "@commitlint/cli": "^19.0.0",
+    "@commitlint/config-conventional": "^19.0.0",
     "@types/node": "^22.15.3",
+    "@typescript-eslint/eslint-plugin": "^8.11.0",
+    "@typescript-eslint/parser": "^8.11.0",
+    "@eslint/js": "^9.33.0",
     "eslint": "^9.33.0",
+    "globals": "^16.3.0",
+    "typescript-eslint": "^8.40.0",
+    "eslint-config-next": "^15.0.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^15.2.10",
     "prettier": "^3.6.2",
     "turbo": "^2.5.6",
-  "typescript": "5.9.2",
-  "tailwindcss": "^3.4.15"
+    "typescript": "5.9.2",
+    "vitest": "^2.1.9",
+    "tailwindcss": "^3.4.15"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {

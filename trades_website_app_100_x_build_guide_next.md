@@ -16,19 +16,19 @@ This guide walks you end‑to‑end through building a production‑grade app th
 
 **Install once on your workstation:**
 
-- **Node** ≥ 20.x (ship with corepack)  
-- **PNPM** (`corepack enable && corepack prepare pnpm@latest --activate`)  
-- **Python** 3.11+  
-- **pipx** (`python -m pip install --user pipx && pipx ensurepath`)  
+- **Node** ≥ 20.x (ship with corepack)
+- **PNPM** (`corepack enable && corepack prepare pnpm@latest --activate`)
+- **Python** 3.11+
+- **pipx** (`python -m pip install --user pipx && pipx ensurepath`)
 - **uv** (fast Python package manager) (`pipx install uv`)
-- **Docker Desktop** (or colima/podman)  
-- **Git** + GitHub account  
+- **Docker Desktop** (or colima/podman)
+- **Git** + GitHub account
 - **Make** (optional but handy on macOS/Linux; on Windows use PowerShell scripts)
 
 **VS Code extensions (recommended):**
 
-- ESLint, Prettier, Tailwind CSS IntelliSense  
-- Python, ruff, Django, Docker  
+- ESLint, Prettier, Tailwind CSS IntelliSense
+- Python, ruff, Django, Docker
 - GitHub Copilot/Chat (optional)
 
 ---
@@ -43,6 +43,7 @@ pnpm -w add -D prettier eslint typescript @types/node turbo
 ```
 
 **Workspace layout**
+
 ```
 trades-website-app/
   apps/
@@ -60,6 +61,7 @@ trades-website-app/
 ```
 
 **Top-level `package.json` (essential bits)**
+
 ```json
 {
   "name": "trades-website-app",
@@ -76,6 +78,7 @@ trades-website-app/
 ```
 
 **`turbo.json`**
+
 ```json
 {
   "$schema": "https://turbo.build/schema.json",
@@ -305,7 +308,7 @@ uv run python manage.py createsuperuser
 **2.6 Docker Compose for local DB + S3 (MinIO)** (`apps/cms/docker-compose.yml`)
 
 ```yaml
-version: "3.9"
+version: '3.9'
 services:
   db:
     image: postgres:16-alpine
@@ -313,7 +316,7 @@ services:
       POSTGRES_USER: trades
       POSTGRES_PASSWORD: password
       POSTGRES_DB: trades
-    ports: ["5432:5432"]
+    ports: ['5432:5432']
     volumes: [db:/var/lib/postgresql/data]
 
   minio:
@@ -322,7 +325,7 @@ services:
     environment:
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: minio123
-    ports: ["9000:9000", "9001:9001"]
+    ports: ['9000:9000', '9001:9001']
     volumes: [minio:/data]
 
 volumes:
@@ -331,6 +334,7 @@ volumes:
 ```
 
 **2.7 `.env` for CMS** (`apps/cms/.env`)
+
 ```
 POSTGRES_HOST=localhost
 POSTGRES_PORT=5432
@@ -422,22 +426,32 @@ pnpm add -D @types/node @types/react @tailwindcss/typography @tailwindcss/forms
 **4.2 Tailwind config** — tokens via CSS variables in `globals.css`
 
 ```css
-:root{
+:root {
   --color-primary: #0ea5e9;
   --color-accent: #22c55e;
   --color-neutral: #0f172a;
   --radius: 1rem;
 }
 
-@layer base{
-  html { color-scheme: light; }
-  body { @apply text-slate-800 bg-white; }
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  body {
+    @apply text-slate-800 bg-white;
+  }
 }
 
-@layer utilities{
-  .card { @apply rounded-2xl shadow-lg p-6 bg-white; border-radius: var(--radius); }
-  .btn-primary { @apply inline-flex items-center gap-2 px-4 py-2 rounded-2xl font-medium;
-    background: var(--color-primary); color:white; }
+@layer utilities {
+  .card {
+    @apply rounded-2xl shadow-lg p-6 bg-white;
+    border-radius: var(--radius);
+  }
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-2xl font-medium;
+    background: var(--color-primary);
+    color: white;
+  }
 }
 ```
 
@@ -447,10 +461,12 @@ Create a tiny config endpoint in CMS (`/api/site-config`) or use Snippets API fo
 
 ```ts
 // apps/web/src/lib/cms.ts
-export const CMS_URL = process.env.NEXT_PUBLIC_CMS_URL || "http://localhost:8000";
+export const CMS_URL = process.env.NEXT_PUBLIC_CMS_URL || 'http://localhost:8000';
 
 export async function fetchTheme() {
-  const res = await fetch(`${CMS_URL}/api/v2/snippets/sitecontent_theme/`, { next: { revalidate: 60 } });
+  const res = await fetch(`${CMS_URL}/api/v2/snippets/sitecontent_theme/`, {
+    next: { revalidate: 60 },
+  });
   const json = await res.json();
   const theme = json.items?.[0];
   return theme;
@@ -461,16 +477,16 @@ Apply the theme at the layout root:
 
 ```tsx
 // apps/web/src/app/layout.tsx
-import "./globals.css";
-import { fetchTheme } from "@/lib/cms";
+import './globals.css';
+import { fetchTheme } from '@/lib/cms';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const theme = await fetchTheme();
   const style = {
-    "--color-primary": theme?.brand_color ?? "#0ea5e9",
-    "--color-accent": theme?.accent ?? "#22c55e",
-    "--color-neutral": theme?.neutral ?? "#0f172a",
-    "--radius": theme?.radius ?? "1rem",
+    '--color-primary': theme?.brand_color ?? '#0ea5e9',
+    '--color-accent': theme?.accent ?? '#22c55e',
+    '--color-neutral': theme?.neutral ?? '#0f172a',
+    '--radius': theme?.radius ?? '1rem',
   } as React.CSSProperties;
 
   return (
@@ -521,13 +537,17 @@ Install lightbox already above. Create a responsive Masonry grid using CSS colum
 
 ```tsx
 // apps/web/src/components/Gallery.tsx
-"use client";
-import { useState } from "react";
-import Image from "next/image";
-import Lightbox from "yet-another-react-lightbox";
-import "yet-another-react-lightbox/styles.css";
+'use client';
+import { useState } from 'react';
+import Image from 'next/image';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
 
-export default function Gallery({ images }: { images: { src: string; width: number; height: number; alt?: string }[] }) {
+export default function Gallery({
+  images,
+}: {
+  images: { src: string; width: number; height: number; alt?: string }[];
+}) {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   return (
@@ -535,12 +555,32 @@ export default function Gallery({ images }: { images: { src: string; width: numb
       <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 [column-fill:_balance]"></div>
       <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 [column-fill:_balance]">
         {images.map((img, i) => (
-          <button key={i} className="mb-4 w-full" onClick={() => { setIndex(i); setOpen(true); }}>
-            <Image src={img.src} alt={img.alt || ""} width={img.width} height={img.height} className="w-full h-auto rounded-xl shadow" placeholder="blur" blurDataURL={img.src+"?w=20&q=10"} />
+          <button
+            key={i}
+            className="mb-4 w-full"
+            onClick={() => {
+              setIndex(i);
+              setOpen(true);
+            }}
+          >
+            <Image
+              src={img.src}
+              alt={img.alt || ''}
+              width={img.width}
+              height={img.height}
+              className="w-full h-auto rounded-xl shadow"
+              placeholder="blur"
+              blurDataURL={img.src + '?w=20&q=10'}
+            />
           </button>
         ))}
       </div>
-      <Lightbox open={open} close={() => setOpen(false)} index={index} slides={images.map(i => ({ src: i.src }))} />
+      <Lightbox
+        open={open}
+        close={() => setOpen(false)}
+        index={index}
+        slides={images.map((i) => ({ src: i.src }))}
+      />
     </>
   );
 }
@@ -550,19 +590,24 @@ export default function Gallery({ images }: { images: { src: string; width: numb
 
 ```tsx
 // apps/web/src/app/portfolio/page.tsx
-import { fetchProjects } from "@/lib/projects";
-import Gallery from "@/components/Gallery";
-import { CMS_URL } from "@/lib/cms";
+import { fetchProjects } from '@/lib/projects';
+import Gallery from '@/components/Gallery';
+import { CMS_URL } from '@/lib/cms';
 
 export default async function PortfolioPage() {
   const projects = await fetchProjects();
 
-  const images = projects.flatMap((p) => (p.gallery || []).map((img: any) => ({
-    src: `${CMS_URL}${img.value.meta.download_url}`.replace("/original_images/", "/fills/1200x0/"),
-    width: img.value.width || 1200,
-    height: img.value.height || 800,
-    alt: p.title,
-  })));
+  const images = projects.flatMap((p) =>
+    (p.gallery || []).map((img: any) => ({
+      src: `${CMS_URL}${img.value.meta.download_url}`.replace(
+        '/original_images/',
+        '/fills/1200x0/',
+      ),
+      width: img.value.width || 1200,
+      height: img.value.height || 800,
+      alt: p.title,
+    })),
+  );
 
   return (
     <main className="container mx-auto px-4 py-12">
@@ -589,25 +634,31 @@ export default async function PortfolioPage() {
 
 ```tsx
 // apps/web/src/components/Hero.tsx
-export function Hero({ variant = "bold-build", heading, sub, cta }: any){
-  if(variant === "craft-clean"){
-    return (<section className="py-20"><div className="container mx-auto px-4 text-center">
-      <h1 className="text-4xl font-bold mb-4">{heading}</h1>
-      <p className="text-lg mb-6">{sub}</p>
-      {cta}
-    </div></section>);
+export function Hero({ variant = 'bold-build', heading, sub, cta }: any) {
+  if (variant === 'craft-clean') {
+    return (
+      <section className="py-20">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl font-bold mb-4">{heading}</h1>
+          <p className="text-lg mb-6">{sub}</p>
+          {cta}
+        </div>
+      </section>
+    );
   }
   // bold-build default
-  return (<section className="py-24 bg-[var(--color-neutral)] text-white">
-    <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-8 items-center">
-      <div>
-        <h1 className="text-5xl font-extrabold mb-4">{heading}</h1>
-        <p className="text-lg opacity-90 mb-6">{sub}</p>
-        {cta}
+  return (
+    <section className="py-24 bg-[var(--color-neutral)] text-white">
+      <div className="container mx-auto px-4 grid lg:grid-cols-2 gap-8 items-center">
+        <div>
+          <h1 className="text-5xl font-extrabold mb-4">{heading}</h1>
+          <p className="text-lg opacity-90 mb-6">{sub}</p>
+          {cta}
+        </div>
+        <div className="card bg-white/10">Your image/video here</div>
       </div>
-      <div className="card bg-white/10">Your image/video here</div>
-    </div>
-  </section>);
+    </section>
+  );
 }
 ```
 
@@ -617,23 +668,26 @@ export function Hero({ variant = "bold-build", heading, sub, cta }: any){
 
 ## 6) SEO, Accessibility, and Structured Data
 
-- Use Next’s metadata API in server components.  
-- Generate `sitemap.xml` and `robots.txt` routes.  
-- Include **JSON‑LD** for `LocalBusiness`, `Service`, `Review`, and `Project` pages.  
-- Always require `alt` text in CMS for images; enforce minimum contrast via Tailwind classes and `aria-*` where relevant.  
+- Use Next’s metadata API in server components.
+- Generate `sitemap.xml` and `robots.txt` routes.
+- Include **JSON‑LD** for `LocalBusiness`, `Service`, `Review`, and `Project` pages.
+- Always require `alt` text in CMS for images; enforce minimum contrast via Tailwind classes and `aria-*` where relevant.
 - Prefetch important routes; lazy‑load below‑the‑fold images.
 
 **Example JSON-LD** in a page:
 
 ```tsx
-export function LocalBusinessJsonLd({ name, phone, address }: any){
+export function LocalBusinessJsonLd({ name, phone, address }: any) {
   const json = {
-    "@context": "https://schema.org",
-    "@type": "LocalBusiness",
-    name, telephone: phone,
-    address: { "@type": "PostalAddress", ...address }
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name,
+    telephone: phone,
+    address: { '@type': 'PostalAddress', ...address },
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }} />
+  return (
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(json) }} />
+  );
 }
 ```
 
@@ -642,11 +696,13 @@ export function LocalBusinessJsonLd({ name, phone, address }: any){
 ## 7) Testing Strategy (Backend + Frontend)
 
 **Backend (pytest):**
+
 - Model tests (constraints, signals)
 - API tests (list/detail, filters, pagination, CORS)
 - Image rendition URLs exist
 
 **Frontend:**
+
 - Unit tests (Vitest/RTL) for components (Gallery, Hero variants)
 - Integration (React Testing Library)
 - E2E (Playwright): critical paths (home loads, services render, gallery lightbox opens, contact form submits)
@@ -676,14 +732,14 @@ jobs:
           POSTGRES_USER: trades
           POSTGRES_PASSWORD: password
           POSTGRES_DB: trades
-        ports: ["5432:5432"]
+        ports: ['5432:5432']
         options: >-
           --health-cmd="pg_isready -U trades" --health-interval=10s --health-timeout=5s --health-retries=5
     steps:
       - uses: actions/checkout@v4
       - name: Set up Python
         uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
+        with: { python-version: '3.11' }
       - name: Install uv
         run: pipx install uv
       - name: Install deps
@@ -718,14 +774,16 @@ jobs:
 ## 9) Production Deployment
 
 **Web (Next.js) on Vercel**
+
 - Set `NEXT_PUBLIC_CMS_URL=https://cms.yourdomain.com`
 - Build command: `pnpm build`, output Next default
 - Add custom domains per tenant later (wildcard subdomain supported on Pro/Enterprise)
 
 **CMS on Fly.io (example)**
-- Dockerfile for Wagtail (gunicorn + whitenoise)  
-- Attach managed Postgres (Fly Postgres)  
-- S3 storage: AWS or Cloudflare R2  
+
+- Dockerfile for Wagtail (gunicorn + whitenoise)
+- Attach managed Postgres (Fly Postgres)
+- S3 storage: AWS or Cloudflare R2
 - `CORS_ALLOWED_ORIGINS` to Vercel domain(s)
 
 **Secrets**: store DB creds, S3 keys in platform secret stores.
@@ -735,6 +793,7 @@ jobs:
 **Media**: don’t use local disk in prod; only S3/R2.
 
 **Domains**:
+
 - CMS: `cms.yourdomain.com`
 - Tenants: `site1.yourdomain.com`, later CNAME custom domains
 
@@ -743,52 +802,56 @@ jobs:
 ## 10) Multi‑Tenant Evolution (SaaS)
 
 **Option A: Wagtail Sites (simple)**
-- Each client = a Wagtail Site bound to a hostname  
-- Content trees isolated per Site; Theme per Site  
+
+- Each client = a Wagtail Site bound to a hostname
+- Content trees isolated per Site; Theme per Site
 - Pro: easiest; Con: permissions and quotas are manual
 
 **Option B: `django-tenants`**
+
 - True schema‑per‑tenant
-- Requires splitting shared vs tenant apps  
+- Requires splitting shared vs tenant apps
 - Pro: hard isolation, per‑tenant backups; Con: more ops
 
 **Routing in Next**
-- Use `headers().get('host')` to map host → Site ID via an API  
-- Cache site config with ISR (60–300s)  
+
+- Use `headers().get('host')` to map host → Site ID via an API
+- Cache site config with ISR (60–300s)
 - Per‑site sitemap and robots
 
 **Billing**
+
 - Add Stripe later; lock publish if past-due, keep read-only site for a grace period
 
 ---
 
 ## 11) Forms, Reviews, and Integrations
 
-- **Leads**: DRF endpoint + email to business owner (SendGrid/SES).  
-- **Google Reviews import**: CRON worker to cache top reviews by Place ID (render statically).  
-- **Calendly/Cal.com**: inline booking on Contact page.  
-- **Analytics**: Plausible/PostHog; record CTA clicks, gallery opens.  
+- **Leads**: DRF endpoint + email to business owner (SendGrid/SES).
+- **Google Reviews import**: CRON worker to cache top reviews by Place ID (render statically).
+- **Calendly/Cal.com**: inline booking on Contact page.
+- **Analytics**: Plausible/PostHog; record CTA clicks, gallery opens.
 - **Error Monitoring**: Sentry (web + cms).
 
 ---
 
 ## 12) Security & Compliance Checklist
 
-- CORS allow‑list, not `*`  
-- CSP headers (at least `img-src` for S3/CMS)  
-- Admin behind VPN or IP allow‑list (optional)  
-- CSRF on forms; hCaptcha/Turnstile  
-- Regular DB backups; object storage lifecycle (infrequent access)  
+- CORS allow‑list, not `*`
+- CSP headers (at least `img-src` for S3/CMS)
+- Admin behind VPN or IP allow‑list (optional)
+- CSRF on forms; hCaptcha/Turnstile
+- Regular DB backups; object storage lifecycle (infrequent access)
 - PII: store only what’s required (leads); add GDPR/CCPA privacy page
 
 ---
 
 ## 13) Performance Budget & Core Web Vitals
 
-- First load JS < 150KB for marketing pages  
-- Optimize images (width‑aware; use modern formats)  
-- Lazy‑load lightbox & non‑critical components  
-- Use Next’s `revalidate` for ISR; set CDN cache headers  
+- First load JS < 150KB for marketing pages
+- Optimize images (width‑aware; use modern formats)
+- Lazy‑load lightbox & non‑critical components
+- Use Next’s `revalidate` for ISR; set CDN cache headers
 - Preconnect to CMS origin; HTTP/2/3 enabled
 
 ---
@@ -816,50 +879,50 @@ seed:
 
 ## 15) What to Build First (the exact feature order)
 
-1) **CMS data model** (Theme, Service, Project, Testimonial) + seed content  
-2) **API** (Wagtail v2 endpoints)  
-3) **Web skeleton** (layout, nav, footer, 404)  
-4) **Home** with hero variants + service cards + testimonials  
-5) **Portfolio** list with gallery + detail page  
-6) **Service** list + detail (filtering projects by service)  
-7) **Contact** with Lead POST + validation + email  
-8) **Theme selector** wired from CMS (visual proof: colors/border radius change)  
-9) **SEO** (metadata, sitemap, robots, JSON‑LD)  
-10) **Playwright E2E** (smoke)  
-11) **Deploy** (Vercel/Fly)  
-12) **Docs** (editor guide: add a project, change theme, publish)  
+1. **CMS data model** (Theme, Service, Project, Testimonial) + seed content
+2. **API** (Wagtail v2 endpoints)
+3. **Web skeleton** (layout, nav, footer, 404)
+4. **Home** with hero variants + service cards + testimonials
+5. **Portfolio** list with gallery + detail page
+6. **Service** list + detail (filtering projects by service)
+7. **Contact** with Lead POST + validation + email
+8. **Theme selector** wired from CMS (visual proof: colors/border radius change)
+9. **SEO** (metadata, sitemap, robots, JSON‑LD)
+10. **Playwright E2E** (smoke)
+11. **Deploy** (Vercel/Fly)
+12. **Docs** (editor guide: add a project, change theme, publish)
 
 ---
 
 ## 16) Editor Guide (non‑technical users)
 
-- Login at `/cms` → Add/Update Services  
-- Go to Projects → “Add Project” → upload 10–20 photos → add city, service tags  
-- Reorder images by drag‑and‑drop (Wagtail)  
-- Publish → Site updates in ≤ 1 minute (ISR)  
-- Change Theme colors → Save → Verify site branding updates  
+- Login at `/cms` → Add/Update Services
+- Go to Projects → “Add Project” → upload 10–20 photos → add city, service tags
+- Reorder images by drag‑and‑drop (Wagtail)
+- Publish → Site updates in ≤ 1 minute (ISR)
+- Change Theme colors → Save → Verify site branding updates
 - Use Contact page form to test email delivery (check spam)
 
 ---
 
 ## 17) Future Enhancements
 
-- Before/After slider block (React Compare Image)  
-- Video support via Mux uploads in CMS  
-- Pricing calculator block (material x labor x complexity)  
-- Multi‑tenant onboarding wizard in Next (site name, logo, colors, services)  
-- Stripe billing + plan‑gated features  
-- Theme marketplace (export/import JSON)  
+- Before/After slider block (React Compare Image)
+- Video support via Mux uploads in CMS
+- Pricing calculator block (material x labor x complexity)
+- Multi‑tenant onboarding wizard in Next (site name, logo, colors, services)
+- Stripe billing + plan‑gated features
+- Theme marketplace (export/import JSON)
 - Content versioning with preview links (Wagtail has this built‑in)
 
 ---
 
 ## 18) Troubleshooting
 
-- **Gallery images not loading** → Check CORS from CMS to web; ensure S3 bucket public read or signed URLs used.  
-- **Theme not applying** → Confirm snippet API returns 200; inspect CSS variables at `<html>`/`<body>`.  
-- **Slow TTFB** → Enable ISR revalidate and CDN caching; avoid client components on heavy pages.  
-- **Broken images after deploy** → Use absolute CMS URL in production; don’t rely on relative paths.  
+- **Gallery images not loading** → Check CORS from CMS to web; ensure S3 bucket public read or signed URLs used.
+- **Theme not applying** → Confirm snippet API returns 200; inspect CSS variables at `<html>`/`<body>`.
+- **Slow TTFB** → Enable ISR revalidate and CDN caching; avoid client components on heavy pages.
+- **Broken images after deploy** → Use absolute CMS URL in production; don’t rely on relative paths.
 - **CSP blocking lightbox** → Add lightbox’s inline styles/script allowances or host assets locally.
 
 ---
@@ -904,9 +967,9 @@ WAGTAILAPI_BASE_URL=http://localhost:8000
 
 ## 21) Definition of Done (per feature)
 
-- **Code**: typed (TS), lint‑clean, unit tests  
-- **UX**: mobile‑first, keyboard accessible, alt text set  
-- **Perf**: LCP < 2.5s, CLS < 0.1  
-- **SEO**: title/desc set, JSON‑LD present  
-- **Docs**: README section updated  
+- **Code**: typed (TS), lint‑clean, unit tests
+- **UX**: mobile‑first, keyboard accessible, alt text set
+- **Perf**: LCP < 2.5s, CLS < 0.1
+- **SEO**: title/desc set, JSON‑LD present
+- **Docs**: README section updated
 - **E2E**: smoke test passes in CI

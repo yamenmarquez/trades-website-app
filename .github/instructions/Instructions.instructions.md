@@ -4,10 +4,10 @@
 
 Build a **SaaS / plug-and-play repo** to create & maintain websites for trades (glass, carpentry, cabinets, tile, drywall, HVAC, plumbing, etc.) with:
 
-* **Simple onboarding wizard** (logo, colors, services, area, contact, photos).
-* **Non-technical editing** (drag/drop blocks, gallery, testimonials).
-* **Theme selector** (layouts & tokens).
-* **Strong local SEO** (LocalBusiness schema, reviews, service areas, fast load).
+- **Simple onboarding wizard** (logo, colors, services, area, contact, photos).
+- **Non-technical editing** (drag/drop blocks, gallery, testimonials).
+- **Theme selector** (layouts & tokens).
+- **Strong local SEO** (LocalBusiness schema, reviews, service areas, fast load).
 
 ---
 
@@ -25,14 +25,14 @@ Best combo: Wagtail for editing, Next.js for delivery. Postgres + S3 for storage
 
 **MVP (single tenant)**:
 
-* Monorepo (Turborepo): `apps/web` (Next) + `apps/cms` (Wagtail) + `packages/ui`.
-* Deploy: Next on Vercel; Wagtail on Render/Fly; DB = Postgres managed; S3/Supabase for media.
+- Monorepo (Turborepo): `apps/web` (Next) + `apps/cms` (Wagtail) + `packages/ui`.
+- Deploy: Next on Vercel; Wagtail on Render/Fly; DB = Postgres managed; S3/Supabase for media.
 
 **Multi-tenant SaaS**:
 
-* Wagtail multi-site + `django-tenants`.
-* Domain mapping: `site.tuapp.com` or client’s own.
-* Onboarding wizard + Stripe billing.
+- Wagtail multi-site + `django-tenants`.
+- Domain mapping: `site.tuapp.com` or client’s own.
+- Onboarding wizard + Stripe billing.
 
 ---
 
@@ -43,38 +43,37 @@ Optional: Guarantee, Financing, Careers.
 
 **Key Sections**:
 
-* **Home**: Hero CTA, why choose us, services, reviews slider, gallery, service areas, CTA.
-* **Services**: List + individual pages (photos, FAQs, CTA).
-* **Portfolio**: Masonry gallery, filters, video support.
-* **Reviews**: Google import, schema.
-* **About**: Story, team, licenses.
-* **Areas**: Map + neighborhoods.
-* **Pricing**: Packages, estimator form.
-* **Blog**: SEO guides.
-* **Contact**: Form, WhatsApp, Calendly, map.
+- **Home**: Hero CTA, why choose us, services, reviews slider, gallery, service areas, CTA.
+- **Services**: List + individual pages (photos, FAQs, CTA).
+- **Portfolio**: Masonry gallery, filters, video support.
+- **Reviews**: Google import, schema.
+- **About**: Story, team, licenses.
+- **Areas**: Map + neighborhoods.
+- **Pricing**: Packages, estimator form.
+- **Blog**: SEO guides.
+- **Contact**: Form, WhatsApp, Calendly, map.
 
 ---
 
 ## 🖼️ Gallery (Next.js Conf style)
 
-* Responsive grid (masonry), optimized images, blur placeholders.
-* Lightbox with zoom/swipe.
-* Filters by service/city, supports video (Mux/Cloudflare).
-* `/portfolio` (listing) + `/portfolio/[slug]` (detail).
+- Responsive grid (masonry), optimized images, blur placeholders.
+- Lightbox with zoom/swipe.
+- Filters by service/city, supports video (Mux/Cloudflare).
+- `/portfolio` (listing) + `/portfolio/[slug]` (detail).
 
 **CMS Models**:
 
-* `Project`: title, services, city, gallery, before/after.
-* `MediaAsset`: image/video, tags, alt, metadata.
+- `Project`: title, services, city, gallery, before/after.
+- `MediaAsset`: image/video, tags, alt, metadata.
 
 ---
 
 ## 🎨 Themes / Templates
 
-* **Theme object** in CMS: colors, fonts, radius, shadow, layoutVariant.
-* Apply via CSS variables (`:root { --primary: … }`).
-* **Base templates**:
-
+- **Theme object** in CMS: colors, fonts, radius, shadow, layoutVariant.
+- Apply via CSS variables (`:root { --primary: … }`).
+- **Base templates**:
   1. Craft Clean (minimal)
   2. Bold Build (big blocks, strong CTA)
   3. Modern Pro (cards, subtle accents)
@@ -83,24 +82,24 @@ Optional: Guarantee, Financing, Careers.
 
 ## 🗂️ CMS Data Models
 
-* **SiteConfig**: logo, colors, phones, socials, CTAs.
-* **Service**: name, slug, desc, FAQs, photos.
-* **Project**: title, slug, service(s), city, gallery.
-* **MediaAsset**: image/video w/ metadata.
-* **Testimonial**: name, rating, source.
-* **ServiceArea**: city/zip, map.
-* **Post**: blog article.
-* **Lead**: form submissions.
-* **Page**: generic blocks (hero, services, gallery, reviews, CTA).
+- **SiteConfig**: logo, colors, phones, socials, CTAs.
+- **Service**: name, slug, desc, FAQs, photos.
+- **Project**: title, slug, service(s), city, gallery.
+- **MediaAsset**: image/video w/ metadata.
+- **Testimonial**: name, rating, source.
+- **ServiceArea**: city/zip, map.
+- **Post**: blog article.
+- **Lead**: form submissions.
+- **Page**: generic blocks (hero, services, gallery, reviews, CTA).
 
 ---
 
 ## ✏️ Editing UX
 
-* Pre-built **blocks** (services, testimonials, before/after, map).
-* **Validations**: alt text required, crop presets, file size caps.
-* **Mass upload**: drag & drop photos, auto-tag.
-* Preview → publish workflow.
+- Pre-built **blocks** (services, testimonials, before/after, map).
+- **Validations**: alt text required, crop presets, file size caps.
+- **Mass upload**: drag & drop photos, auto-tag.
+- Preview → publish workflow.
 
 ---
 
@@ -116,8 +115,8 @@ Optional: Guarantee, Financing, Careers.
   /utils   # helpers (SEO, schema.org)
 ```
 
-* Local: Docker Compose (Postgres, MinIO, Redis opt).
-* CI/CD: lint, typecheck, tests, preview deploys, auto migrations.
+- Local: Docker Compose (Postgres, MinIO, Redis opt).
+- CI/CD: lint, typecheck, tests, preview deploys, auto migrations.
 
 ---
 

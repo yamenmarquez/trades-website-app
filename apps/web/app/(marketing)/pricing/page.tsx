@@ -5,7 +5,9 @@ export default function PricingPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="card text-center">
           <h2 className="text-xl font-semibold mb-4">Basic</h2>
-          <p className="text-3xl font-bold mb-4">$99<span className="text-lg opacity-60">/hour</span></p>
+          <p className="text-3xl font-bold mb-4">
+            $99<span className="text-lg opacity-60">/hour</span>
+          </p>
           <ul className="text-left space-y-2 mb-6">
             <li>• Standard consultation</li>
             <li>• Basic project planning</li>
@@ -16,7 +18,9 @@ export default function PricingPage() {
         </div>
         <div className="card text-center border-2 border-primary">
           <h2 className="text-xl font-semibold mb-4">Professional</h2>
-          <p className="text-3xl font-bold mb-4">$149<span className="text-lg opacity-60">/hour</span></p>
+          <p className="text-3xl font-bold mb-4">
+            $149<span className="text-lg opacity-60">/hour</span>
+          </p>
           <ul className="text-left space-y-2 mb-6">
             <li>• Detailed consultation</li>
             <li>• Advanced project planning</li>
@@ -28,7 +32,9 @@ export default function PricingPage() {
         </div>
         <div className="card text-center">
           <h2 className="text-xl font-semibold mb-4">Premium</h2>
-          <p className="text-3xl font-bold mb-4">$199<span className="text-lg opacity-60">/hour</span></p>
+          <p className="text-3xl font-bold mb-4">
+            $199<span className="text-lg opacity-60">/hour</span>
+          </p>
           <ul className="text-left space-y-2 mb-6">
             <li>• Comprehensive consultation</li>
             <li>• Custom project design</li>

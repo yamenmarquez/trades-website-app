@@ -19,7 +19,11 @@ export default function ContactPage() {
             </div>
             <div>
               <h3 className="font-semibold">Address</h3>
-              <p className="opacity-80">123 Main Street<br />City, State 12345</p>
+              <p className="opacity-80">
+                123 Main Street
+                <br />
+                City, State 12345
+              </p>
             </div>
           </div>
         </div>
@@ -27,7 +31,9 @@ export default function ContactPage() {
           <h2 className="text-xl font-semibold mb-4">Send us a Message</h2>
           <form className="space-y-4">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-1">Name</label>
+              <label htmlFor="name" className="block text-sm font-medium mb-1">
+                Name
+              </label>
               <input
                 type="text"
                 id="name"
@@ -37,7 +43,9 @@ export default function ContactPage() {
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium mb-1">Email</label>
+              <label htmlFor="email" className="block text-sm font-medium mb-1">
+                Email
+              </label>
               <input
                 type="email"
                 id="email"
@@ -47,7 +55,9 @@ export default function ContactPage() {
               />
             </div>
             <div>
-              <label htmlFor="message" className="block text-sm font-medium mb-1">Message</label>
+              <label htmlFor="message" className="block text-sm font-medium mb-1">
+                Message
+              </label>
               <textarea
                 id="message"
                 name="message"

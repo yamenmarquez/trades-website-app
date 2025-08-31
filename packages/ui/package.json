@@ -5,12 +5,11 @@
   "exports": {
     "./*": "./src/*.tsx"
   },
-  
   "scripts": {
     "build": "tsup src/index.ts --dts --format esm,cjs --out-dir dist",
     "lint": "eslint .",
-    "check-types": "tsc -p tsconfig.build.json --noEmit",
-    "test": "vitest run"
+    "check-types": "tsc -p tsconfig.json --noEmit",
+    "test": "echo 'no tests'"
   },
   "devDependencies": {
     "@repo/eslint-config": "workspace:*",

@@ -9,6 +9,7 @@ This version rewrites the original 100× guide for **Cursor on Windows (PowerShe
 ## 0) Prerequisites
 
 ### Windows (PowerShell)
+
 1. Install **Node 20+** (includes Corepack).
 2. Enable PNPM:
    ```powershell
@@ -30,6 +31,7 @@ This version rewrites the original 100× guide for **Cursor on Windows (PowerShe
 7. Install **Git** and **VS Code/Cursor**.
 
 ### macOS / Linux (bash/zsh)
+
 ```bash
 # Node 20+ (use fnm/nvm/asdf), then:
 corepack enable
@@ -52,6 +54,7 @@ pipx install uv
 ## 1) Create the Monorepo (Turborepo)
 
 ### Windows (PowerShell)
+
 ```powershell
 New-Item -ItemType Directory -Path C:\Repos\trades-website-app -Force | Out-Null
 Set-Location C:\Repos\trades-website-app
@@ -63,6 +66,7 @@ pnpm add -w -D prettier eslint typescript @types/node turbo
 ```
 
 ### macOS / Linux (bash/zsh)
+
 ```bash
 mkdir -p ~/Repos/trades-website-app
 cd ~/Repos/trades-website-app
@@ -74,6 +78,7 @@ pnpm add -w -D prettier eslint typescript @types/node turbo
 ```
 
 Create the folders we’ll use:
+
 ```powershell
 # Windows PS
 New-Item -ItemType Directory -Path .\apps\web -Force | Out-Null
@@ -90,6 +95,7 @@ New-Item -ItemType Directory -Path .\packages\utils -Force | Out-Null
 You can use **uv** (fast) or plain **venv + pip**. Pick ONE path.
 
 ### Option A — Using `uv` (PowerShell)
+
 ```powershell
 Set-Location C:\Repos\trades-website-app\apps
 uv init --python 3.11 cms
@@ -114,6 +120,7 @@ uv add --dev model-bakery
 ```
 
 ### Option B — Using `venv + pip` (PowerShell)
+
 ```powershell
 Set-Location C:\Repos\trades-website-app\apps\cms
 python -m venv .venv
@@ -130,6 +137,7 @@ pip install -U ruff pytest pytest-django model-bakery
 ```
 
 ### Create the Django project/app
+
 ```powershell
 # If using uv
 uv run django-admin startproject core .
@@ -140,18 +148,22 @@ uv run python manage.py startapp sitecontent
 ```
 
 ### Configure `core/settings.py`
+
 - Add apps/middleware for Wagtail, DRF, CORS, storages, Whitenoise.
 - Configure Postgres via env vars.
 - Configure media/static and optional S3/MinIO.
 - Set `CORS_ALLOWED_ORIGINS` to your web origin.
 
 ### Configure URLs `core/urls.py`
+
 - Include `wagtail.api.v2`, documents, and `wagtail_urls` at `/cms`.
 
 ### Models `sitecontent/models.py`
+
 - Add `Theme` (snippet), `Service` (snippet), `ProjectIndexPage`, `ProjectPage`, `Testimonial`.
 
 ### Apply migrations and create a superuser
+
 ```powershell
 # Using uv
 uv run python manage.py makemigrations
@@ -166,7 +178,7 @@ uv run python manage.py createsuperuser
 Create `apps/cms\docker-compose.yml`.
 
 ```yaml
-version: "3.9"
+version: '3.9'
 services:
   db:
     image: postgres:16-alpine
@@ -174,7 +186,7 @@ services:
       POSTGRES_USER: trades
       POSTGRES_PASSWORD: password
       POSTGRES_DB: trades
-    ports: ["5432:5432"]
+    ports: ['5432:5432']
     volumes: [db:/var/lib/postgresql/data]
 
   minio:
@@ -183,7 +195,7 @@ services:
     environment:
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: minio123
-    ports: ["9000:9000", "9001:9001"]
+    ports: ['9000:9000', '9001:9001']
     volumes: [minio:/data]
 
 volumes:
@@ -192,6 +204,7 @@ volumes:
 ```
 
 ### Create `.env` for the CMS (PowerShell)
+
 ```powershell
 Set-Location C:\Repos\trades-website-app\apps\cms
 
@@ -212,6 +225,7 @@ Add-Content -Path .env -Value "WAGTAILAPI_BASE_URL=http://localhost:8000"
 ```
 
 ### Start services and run the CMS
+
 ```powershell
 # From apps/cms
 docker compose up -d
@@ -225,6 +239,7 @@ uv run python manage.py runserver 0.0.0.0:8000
 ---
 
 ## 4) Expose Read API (Wagtail API v2)
+
 - Pages: `/api/v2/pages/?type=sitecontent.ProjectPage&fields=services,city,date,gallery,description`
 - Images: `/api/v2/images/`
 - Snippets: `/api/v2/snippets/` (Theme, Service, Testimonial)
@@ -236,6 +251,7 @@ uv run python manage.py runserver 0.0.0.0:8000
 ## 5) Frontend Bootstrap (`apps/web`) — Next.js + Tailwind
 
 ### Create the Next.js app
+
 ```powershell
 Set-Location C:\Repos\trades-website-app\apps
 
@@ -247,34 +263,50 @@ pnpm add -D @types/node @types/react @tailwindcss/typography @tailwindcss/forms
 ```
 
 ### Theme tokens via CSS variables
+
 Edit `apps/web/src/app/globals.css` and add:
+
 ```css
-:root{
+:root {
   --color-primary: #0ea5e9;
   --color-accent: #22c55e;
   --color-neutral: #0f172a;
   --radius: 1rem;
 }
 
-@layer base{
-  html { color-scheme: light; }
-  body { @apply text-slate-800 bg-white; }
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  body {
+    @apply text-slate-800 bg-white;
+  }
 }
 
-@layer utilities{
-  .card { @apply rounded-2xl shadow-lg p-6 bg-white; border-radius: var(--radius); }
-  .btn-primary { @apply inline-flex items-center gap-2 px-4 py-2 rounded-2xl font-medium;
-    background: var(--color-primary); color:white; }
+@layer utilities {
+  .card {
+    @apply rounded-2xl shadow-lg p-6 bg-white;
+    border-radius: var(--radius);
+  }
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-2xl font-medium;
+    background: var(--color-primary);
+    color: white;
+  }
 }
 ```
 
 ### CMS fetch helpers
+
 Create `apps/web/src/lib/cms.ts`:
+
 ```ts
-export const CMS_URL = process.env.NEXT_PUBLIC_CMS_URL || "http://localhost:8000";
+export const CMS_URL = process.env.NEXT_PUBLIC_CMS_URL || 'http://localhost:8000';
 
 export async function fetchTheme() {
-  const res = await fetch(`${CMS_URL}/api/v2/snippets/sitecontent_theme/`, { next: { revalidate: 60 } });
+  const res = await fetch(`${CMS_URL}/api/v2/snippets/sitecontent_theme/`, {
+    next: { revalidate: 60 },
+  });
   const json = await res.json();
   const theme = json.items?.[0];
   return theme;
@@ -282,18 +314,19 @@ export async function fetchTheme() {
 ```
 
 Apply in `apps/web/src/app/layout.tsx`:
+
 ```tsx
-import "./globals.css";
-import { fetchTheme } from "@/lib/cms";
-import type { ReactNode } from "react";
+import './globals.css';
+import { fetchTheme } from '@/lib/cms';
+import type { ReactNode } from 'react';
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const theme = await fetchTheme();
   const style = {
-    "--color-primary": theme?.brand_color ?? "#0ea5e9",
-    "--color-accent": theme?.accent ?? "#22c55e",
-    "--color-neutral": theme?.neutral ?? "#0f172a",
-    "--radius": theme?.radius ?? "1rem",
+    '--color-primary': theme?.brand_color ?? '#0ea5e9',
+    '--color-accent': theme?.accent ?? '#22c55e',
+    '--color-neutral': theme?.neutral ?? '#0f172a',
+    '--radius': theme?.radius ?? '1rem',
   } as React.CSSProperties;
 
   return (
@@ -305,7 +338,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
 ```
 
 ### Routes skeleton
+
 Create these files under `apps/web/src/app`:
+
 ```
 (app)/(marketing)/page.tsx
 (app)/(marketing)/services/page.tsx
@@ -321,9 +356,11 @@ Create these files under `apps/web/src/app`:
 ```
 
 ### Portfolio data helper
+
 Create `apps/web/src/lib/projects.ts`:
+
 ```ts
-import { CMS_URL } from "./cms";
+import { CMS_URL } from './cms';
 
 export async function fetchProjects() {
   const url = `${CMS_URL}/api/v2/pages/?type=sitecontent.ProjectPage&fields=city,date,gallery,services&order=-first_published_at`;
@@ -334,15 +371,21 @@ export async function fetchProjects() {
 ```
 
 ### Gallery component
-Create `apps/web/src/components/Gallery.tsx`:
-```tsx
-"use client";
-import { useState } from "react";
-import Image from "next/image";
-import Lightbox from "yet-another-react-lightbox";
-import "yet-another-react-lightbox/styles.css";
 
-export default function Gallery({ images }:{ images:{ src:string;width:number;height:number;alt?:string }[] }){
+Create `apps/web/src/components/Gallery.tsx`:
+
+```tsx
+'use client';
+import { useState } from 'react';
+import Image from 'next/image';
+import Lightbox from 'yet-another-react-lightbox';
+import 'yet-another-react-lightbox/styles.css';
+
+export default function Gallery({
+  images,
+}: {
+  images: { src: string; width: number; height: number; alt?: string }[];
+}) {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
   return (
@@ -350,34 +393,59 @@ export default function Gallery({ images }:{ images:{ src:string;width:number;he
       <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 [column-fill:_balance]"></div>
       <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 [column-fill:_balance]">
         {images.map((img, i) => (
-          <button key={i} className="mb-4 w-full" onClick={() => { setIndex(i); setOpen(true); }}>
-            <Image src={img.src} alt={img.alt || ""} width={img.width} height={img.height}
-                   className="w-full h-auto rounded-xl shadow" placeholder="blur"
-                   blurDataURL={img.src + "?w=20&q=10"} />
+          <button
+            key={i}
+            className="mb-4 w-full"
+            onClick={() => {
+              setIndex(i);
+              setOpen(true);
+            }}
+          >
+            <Image
+              src={img.src}
+              alt={img.alt || ''}
+              width={img.width}
+              height={img.height}
+              className="w-full h-auto rounded-xl shadow"
+              placeholder="blur"
+              blurDataURL={img.src + '?w=20&q=10'}
+            />
           </button>
         ))}
       </div>
-      <Lightbox open={open} close={() => setOpen(false)} index={index} slides={images.map(i => ({ src: i.src }))} />
+      <Lightbox
+        open={open}
+        close={() => setOpen(false)}
+        index={index}
+        slides={images.map((i) => ({ src: i.src }))}
+      />
     </>
   );
 }
 ```
 
 ### Portfolio page
-Create `apps/web/src/app/(marketing)/portfolio/page.tsx`:
-```tsx
-import { fetchProjects } from "@/lib/projects";
-import Gallery from "@/components/Gallery";
-import { CMS_URL } from "@/lib/cms";
 
-export default async function PortfolioPage(){
+Create `apps/web/src/app/(marketing)/portfolio/page.tsx`:
+
+```tsx
+import { fetchProjects } from '@/lib/projects';
+import Gallery from '@/components/Gallery';
+import { CMS_URL } from '@/lib/cms';
+
+export default async function PortfolioPage() {
   const projects = await fetchProjects();
-  const images = projects.flatMap((p:any) => (p.gallery || []).map((img:any) => ({
-    src: `${CMS_URL}${img.value.meta.download_url}`.replace("/original_images/", "/fills/1200x0/"),
-    width: img.value.width || 1200,
-    height: img.value.height || 800,
-    alt: p.title,
-  })));
+  const images = projects.flatMap((p: any) =>
+    (p.gallery || []).map((img: any) => ({
+      src: `${CMS_URL}${img.value.meta.download_url}`.replace(
+        '/original_images/',
+        '/fills/1200x0/',
+      ),
+      width: img.value.width || 1200,
+      height: img.value.height || 800,
+      alt: p.title,
+    })),
+  );
   return (
     <main className="container mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-6">Our Work</h1>
@@ -392,12 +460,14 @@ export default async function PortfolioPage(){
 ## 6) Run Everything Locally (exact order)
 
 ### Start DB + MinIO
+
 ```powershell
 Set-Location C:\Repos\trades-website-app\apps\cms
 docker compose up -d
 ```
 
 ### Run CMS
+
 ```powershell
 # Using uv
 uv run python manage.py runserver 0.0.0.0:8000
@@ -405,7 +475,9 @@ uv run python manage.py runserver 0.0.0.0:8000
 ```
 
 ### Run Web
+
 Open a new terminal:
+
 ```powershell
 Set-Location C:\Repos\trades-website-app\apps\web
 $env:NEXT_PUBLIC_CMS_URL = "http://localhost:8000"
@@ -418,6 +490,7 @@ Add Services/Themes/Projects in Wagtail and verify the gallery renders. Change T
 ---
 
 ## 7) Contact Form and Leads (later)
+
 - Add a `Lead` model + DRF endpoint in CMS.
 - In Next, create a server action/route that POSTs to `/api/leads/`.
 - Add basic spam protection (Cloudflare Turnstile/hCaptcha).
@@ -425,6 +498,7 @@ Add Services/Themes/Projects in Wagtail and verify the gallery renders. Change T
 ---
 
 ## 8) Production Notes (no chains)
+
 - Vercel for `apps/web` (set `NEXT_PUBLIC_CMS_URL`).
 - Fly.io/Render/DO for `apps/cms` (Postgres managed + S3/R2).
 - Use secrets managers; run `python manage.py migrate` on deploy.
@@ -432,6 +506,7 @@ Add Services/Themes/Projects in Wagtail and verify the gallery renders. Change T
 ---
 
 ## 9) PowerShell Tips for Cursor
+
 - Do **not** use `&&` or `\` continuations.
 - Use `Set-Content` to create files and `Add-Content` to append.
 - Use **absolute** `Set-Location` paths if Cursor opens new shells per task.
@@ -441,6 +516,7 @@ Add Services/Themes/Projects in Wagtail and verify the gallery renders. Change T
 ---
 
 ## 10) Definition of Done (per feature)
+
 - Code typed (TS), lint-clean, unit tests.
 - Mobile-first; accessible; alt text on images.
 - SEO metadata + JSON-LD in place.

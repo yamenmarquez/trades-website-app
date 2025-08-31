@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from wagtail.images import get_image_model
 from .models import Service, Project, MediaAsset, Testimonial, ServiceArea, Lead
+from .models_pages import ServicePage, ProjectPage
 from website.models import SiteSettings
 
 Image = get_image_model()
@@ -50,6 +51,28 @@ class ServiceSerializer(serializers.ModelSerializer):
             return []
 
 
+class ServicePageSerializer(serializers.ModelSerializer):
+    # Keep legacy shape: name, slug, description, icon
+    name = serializers.SerializerMethodField()
+    description = serializers.SerializerMethodField()
+    icon = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ServicePage
+        fields = ["id", "name", "slug", "description", "icon"]
+
+    def get_name(self, obj):
+        return obj.title
+
+    def get_description(self, obj):
+        # Use intro rich text as description string
+        return getattr(obj, "intro", "") or ""
+
+    def get_icon(self, obj):
+        # No icon concept on page; keep null/None
+        return None
+
+
 class TestimonialSerializer(serializers.ModelSerializer):
     class Meta:
         model = Testimonial
@@ -90,6 +113,47 @@ class ProjectSerializer(serializers.ModelSerializer):
             return [t.name for t in obj.tags.all()]
         except Exception:
             return []
+
+
+class ProjectPageSerializer(serializers.ModelSerializer):
+    # Public shape compatible with requested schema
+    images = serializers.SerializerMethodField()
+    url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProjectPage
+        fields = ["id", "title", "slug", "city", "images", "url"]
+
+    def get_url(self, obj):
+        try:
+            request = self.context.get("request")
+            if request is None:
+                return None
+            return request.build_absolute_uri(obj.url)
+        except Exception:
+            return None
+
+    def get_images(self, obj: ProjectPage):
+        request = self.context.get("request")
+        base = f"{request.scheme}://{request.get_host()}" if request else ""
+        items = []
+        try:
+            for block in obj.gallery:
+                if block.block_type == "image" and block.value:
+                    img = block.value
+                    try:
+                        rendition = img.get_rendition("width-1200|format-webp")
+                        url = base + rendition.url
+                    except Exception:
+                        url = base + (img.file.url if hasattr(img, "file") else "")
+
+                    items.append({
+                        "url": url,
+                        "alt": obj.title,
+                    })
+        except Exception:
+            pass
+        return items
 
 
 class LeadSerializer(serializers.ModelSerializer):

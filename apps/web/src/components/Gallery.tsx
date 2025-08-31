@@ -4,11 +4,7 @@ import Image from 'next/image';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 
-export default function Gallery({
-  images,
-}: {
-  images: { src: string; width: number; height: number; alt?: string }[];
-}) {
+export default function Gallery({ images }: { images: { url: string; alt?: string }[] }) {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
 
@@ -25,10 +21,10 @@ export default function Gallery({
             }}
           >
             <Image
-              src={img.src}
+              src={img.url}
               alt={img.alt || ''}
-              width={img.width}
-              height={img.height}
+              width={1200}
+              height={800}
               className="w-full h-auto shadow"
               style={{ borderRadius: 'var(--radius)' }}
               unoptimized
@@ -40,7 +36,7 @@ export default function Gallery({
         open={open}
         close={() => setOpen(false)}
         index={index}
-        slides={images.map((i) => ({ src: i.src }))}
+        slides={images.map((i) => ({ src: i.url }))}
       />
     </>
   );

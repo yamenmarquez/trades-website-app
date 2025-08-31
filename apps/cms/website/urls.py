@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     ServiceViewSet, ProjectViewSet, TestimonialViewSet,
-    ServiceAreaViewSet, LeadViewSet, config_view
+    ServiceAreaViewSet, LeadViewSet, config_view, themes_alias
 )
 
 router = DefaultRouter()
@@ -15,4 +15,5 @@ router.register('leads', LeadViewSet, basename='leads')
 urlpatterns = [
     path('', include(router.urls)),
     path('config/', config_view, name='config'),
+    path('themes/', themes_alias, name='themes'),
 ]

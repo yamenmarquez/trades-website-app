@@ -1,17 +1,16 @@
 import { fetchProjects } from '@/lib/projects';
-import type { ProjectImage } from '@trades/schemas';
 import Gallery from '@/components/Gallery';
 import { CMS_URL } from '@/lib/cms';
 
 export default async function PortfolioPage() {
   const projects = await fetchProjects();
-  const images: ProjectImage[] = projects.flatMap((p) =>
-    (p.images || []).map((img) => ({
-      src: img.src.startsWith('http') ? img.src : `${CMS_URL}${img.src}`,
-      width: img.width || 1200,
-      height: img.height || 800,
-      alt: img.alt || p.title,
-    })),
+  type LegacyOrNew = { url?: string; src?: string; alt?: string };
+  const images: { url: string; alt?: string }[] = projects.flatMap((p) =>
+    ((p.images as LegacyOrNew[] | undefined) || []).map((img) => {
+      const raw = (img?.url ?? img?.src) as string;
+      const url = raw && raw.startsWith('http') ? raw : `${CMS_URL}${raw}`;
+      return { url, alt: img?.alt || p.title };
+    }),
   );
 
   return (

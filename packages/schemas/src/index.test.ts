@@ -17,7 +17,7 @@ describe('schemas', () => {
     expect(s.slug).toBe('a');
   });
   it('parses project', () => {
-    const p = ProjectSchema.parse({ id: 1, title: 'P', slug: 'p', images: [], url: null });
+    const p = ProjectSchema.parse({ id: 1, title: 'P', slug: 'p', images: [] });
     expect(p.title).toBe('P');
   });
   it('parses testimonial', () => {

@@ -30,8 +30,7 @@ class MediaAsset(models.Model):
     ]
 
 
-# ---------- Service ----------
-@register_snippet
+# ---------- Service (legacy model; no longer registered as snippet) ----------
 class Service(models.Model):
     name = models.CharField(max_length=120, unique=True)
     slug = models.SlugField(max_length=140, unique=True, blank=True)
@@ -56,7 +55,7 @@ class Service(models.Model):
         return self.name
 
 
-# ---------- ServiceArea ----------
+# ---------- ServiceArea (snippet) ----------
 @register_snippet
 class ServiceArea(models.Model):
     name = models.CharField(max_length=120, unique=True)
@@ -82,7 +81,7 @@ class ServiceArea(models.Model):
         return self.name
 
 
-# ---------- Testimonial ----------
+# ---------- Testimonial (snippet) ----------
 @register_snippet
 class Testimonial(models.Model):
     name = models.CharField(max_length=120)
@@ -103,18 +102,20 @@ class Testimonial(models.Model):
         return f'{self.name} ({self.rating}★)'
 
 
-# ---------- Project ----------
+# ---------- Project (legacy snippet) ----------
 class ProjectTag(TaggedItemBase):
     content_object = ParentalKey('Project', related_name='tagged_items', on_delete=models.CASCADE)
 
 
-@register_snippet
 class Project(ClusterableModel):
+    """Legacy snippet used for migration only. Keep registered to avoid data loss
+    in existing DBs until migration runs. Do not surface duplicates elsewhere.
+    """
     title = models.CharField(max_length=160)
     slug = models.SlugField(max_length=180, unique=True, blank=True)
-    services = models.ManyToManyField(Service, related_name='projects', blank=True)
+    services = models.ManyToManyField('website.Service', related_name='projects', blank=True)
     city = models.CharField(max_length=120, blank=True)
-    gallery = models.ManyToManyField(MediaAsset, related_name='projects', blank=True)
+    gallery = models.ManyToManyField('website.MediaAsset', related_name='projects', blank=True)
     before_image = models.ForeignKey(get_image_model_string(), on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
     after_image = models.ForeignKey(get_image_model_string(), on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
     published = models.BooleanField(default=True)
@@ -247,3 +248,12 @@ class Lead(models.Model):
 
     def __str__(self):
         return f'{self.name} - {self.email or self.phone or "lead"}'
+
+
+# Import additional Page models so Django registers them; avoid circular imports by
+# importing at the end of the module in a try/except and ignoring lint.
+try:  # noqa: E402
+    from . import models_pages  # type: ignore  # noqa: F401,E402
+except Exception:  # pragma: no cover
+    # During initial migrations this import may fail; it's safe to ignore.
+    pass

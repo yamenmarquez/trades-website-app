@@ -19,10 +19,14 @@ export async function fetchProjects(): Promise<Project[]> {
 }
 
 export async function fetchProject(idOrSlug: string): Promise<Project | undefined> {
-  // For now, the API exposes by ID; try numeric parse, else fetch list and find by slug
+  // Try slug detail endpoint first; if it fails and it's numeric, fallback to ID
+  const resSlug = await fetch(`${CMS_URL}/api/projects/${idOrSlug}/`, {
+    next: { revalidate: 60 },
+  });
+  if (resSlug.ok) return ProjectSchema.parse(await resSlug.json());
   if (/^\d+$/.test(idOrSlug)) {
-    const res = await fetch(`${CMS_URL}/api/projects/${idOrSlug}/`, { next: { revalidate: 60 } });
-    if (res.ok) return ProjectSchema.parse(await res.json());
+    const resId = await fetch(`${CMS_URL}/api/projects/${idOrSlug}/`, { next: { revalidate: 60 } });
+    if (resId.ok) return ProjectSchema.parse(await resId.json());
   }
   const list = await fetchProjects();
   return list.find((p) => p.slug === idOrSlug);

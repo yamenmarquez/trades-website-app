@@ -19,11 +19,11 @@ export const ThemeSchema = z.object({
 export type Theme = z.infer<typeof ThemeSchema>;
 
 export const ServiceSchema = z.object({
-  id: z.number().int(),
+  id: z.number(),
   name: z.string(),
   slug: z.string(),
   description: z.string().optional().default(''),
-  icon: z.string().optional().nullable(),
+  icon: z.string().url().nullable().optional(),
 });
 export type Service = z.infer<typeof ServiceSchema>;
 
@@ -37,21 +37,18 @@ export const TestimonialSchema = z.object({
 export type Testimonial = z.infer<typeof TestimonialSchema>;
 
 export const ProjectImageSchema = z.object({
-  src: z.string().url(),
-  width: z.number().int().positive(),
-  height: z.number().int().positive(),
+  url: z.string().url(),
   alt: z.string().optional().default(''),
 });
 export type ProjectImage = z.infer<typeof ProjectImageSchema>;
 
 export const ProjectSchema = z.object({
-  id: z.number().int(),
+  id: z.number(),
   title: z.string(),
   slug: z.string(),
-  city: z.string().optional().nullable(),
-  date: z.string().datetime().optional().nullable(),
+  city: z.string().optional().default(''),
   images: z.array(ProjectImageSchema).default([]),
-  url: z.string().optional().nullable(),
+  url: z.string().url().optional(),
 });
 export type Project = z.infer<typeof ProjectSchema>;
 

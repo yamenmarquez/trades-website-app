@@ -37,13 +37,13 @@ export async function fetchTheme(): Promise<Theme | undefined> {
   try {
     const json = await safeFetch<unknown>('themes/', { cache: 'no-store' });
     const parsed = ThemesResponseSchema.safeParse(json);
-    const arr = parsed.success
-      ? Array.isArray(parsed.data)
-        ? parsed.data
-        : parsed.data.results
-      : [];
-    const first = arr[0];
-    return first ? ThemeSchema.parse(first) : undefined;
+    if (parsed.success) {
+      const arr = Array.isArray(parsed.data) ? parsed.data : parsed.data.results;
+      const first = arr[0];
+      return first ? ThemeSchema.parse(first) : undefined;
+    }
+    // Fallback: endpoint may return a single Theme object
+    return ThemeSchema.safeParse(json).data;
   } catch {
     return undefined;
   }

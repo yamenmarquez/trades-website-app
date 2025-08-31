@@ -2,10 +2,15 @@ from rest_framework import viewsets, mixins, permissions, throttling
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from wagtail.models import Site as WagtailSite
-from .models import Service, Project, Testimonial, ServiceArea, Lead
+from .models import Testimonial, ServiceArea, Lead
+from .models_pages import ServicePage, ProjectPage
 from .serializers import (
-    ServiceSerializer, ProjectSerializer, TestimonialSerializer,
-    ServiceAreaSerializer, LeadSerializer, ConfigSerializer
+    TestimonialSerializer,
+    ServiceAreaSerializer,
+    LeadSerializer,
+    ConfigSerializer,
+    ServicePageSerializer,
+    ProjectPageSerializer,
 )
 
 
@@ -23,16 +28,29 @@ class LeadsThrottle(throttling.SimpleRateThrottle):
 
 
 class ServiceViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Service.objects.all().order_by('name')
-    serializer_class = ServiceSerializer
+    queryset = ServicePage.objects.live().public().order_by('title')
+    serializer_class = ServicePageSerializer
     permission_classes = [PublicReadOnly]
+    lookup_field = 'slug'
+    pagination_class = None
+
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        ctx['request'] = self.request
+        return ctx
 
 
 class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Project.objects.filter(published=True).order_by('-created_at')
-    serializer_class = ProjectSerializer
+    queryset = ProjectPage.objects.live().public().order_by('-first_published_at')
+    serializer_class = ProjectPageSerializer
     permission_classes = [PublicReadOnly]
     lookup_field = 'slug'
+    pagination_class = None
+
+    def get_serializer_context(self):
+        ctx = super().get_serializer_context()
+        ctx['request'] = self.request
+        return ctx
 
 
 class TestimonialViewSet(viewsets.ReadOnlyModelViewSet):
@@ -58,6 +76,15 @@ class LeadViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
 @api_view(['GET'])
 @permission_classes([PublicReadOnly])
 def config_view(request):
+    site = WagtailSite.find_for_request(request) or WagtailSite.objects.first()
+    data = ConfigSerializer.from_site(site)
+    return Response(data)
+
+
+@api_view(['GET'])
+@permission_classes([PublicReadOnly])
+def themes_alias(request):
+    """Alias /api/themes/ to SiteSettings tokens for backward compatibility."""
     site = WagtailSite.find_for_request(request) or WagtailSite.objects.first()
     data = ConfigSerializer.from_site(site)
     return Response(data)

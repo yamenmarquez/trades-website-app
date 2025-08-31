@@ -26,7 +26,6 @@ from wagtail import urls as wagtail_urls
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('website.urls')),
-    path('api/', include('sitecontent.api')),
     # path("api/v2/", include("wagtail.api.v2.urls")),  # Removed: using DRF endpoints instead
     path("documents/", include(wagtaildocs_urls)),
     path("images/", include(wagtailimages_urls)),

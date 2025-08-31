@@ -67,7 +67,6 @@ INSTALLED_APPS = [
     'taggit',
 
     # Local
-    'sitecontent',
     'website',
 ]
 

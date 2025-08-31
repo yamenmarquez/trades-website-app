@@ -1,4 +1,5 @@
-export const CMS_URL = process.env.NEXT_PUBLIC_CMS_URL || 'http://localhost:8000';
+import { env } from '@trades/utils';
+export const CMS_URL = env.CMS_BASE_URL;
 import {
   ThemeSchema,
   ServiceSchema,
@@ -11,10 +12,30 @@ import {
   type Testimonial,
 } from '@trades/schemas';
 
+const API_BASE = new URL('/api/', CMS_URL).toString();
+
+async function safeFetch<T>(
+  path: string,
+  init?: RequestInit & { revalidate?: number },
+): Promise<T> {
+  const headers = new Headers(init?.headers);
+  if (env.CMS_API_KEY) {
+    headers.set('Authorization', `Token ${env.CMS_API_KEY}`);
+  }
+  const reqInit: RequestInit = {
+    ...init,
+    headers,
+    // Map custom revalidate to Next's fetch option
+    next: init?.revalidate ? { revalidate: init.revalidate } : init?.next,
+  };
+  const res = await fetch(`${API_BASE}${path}`, reqInit);
+  if (!res.ok) throw new Error(`CMS request failed: ${res.status}`);
+  return res.json() as Promise<T>;
+}
+
 export async function fetchTheme(): Promise<Theme | undefined> {
   try {
-    const res = await fetch(`${CMS_URL}/api/themes/`, { cache: 'no-store' });
-    const json = await res.json();
+    const json = await safeFetch<unknown>('themes/', { cache: 'no-store' });
     const parsed = ThemesResponseSchema.safeParse(json);
     const arr = parsed.success
       ? Array.isArray(parsed.data)
@@ -30,8 +51,7 @@ export async function fetchTheme(): Promise<Theme | undefined> {
 
 export async function fetchServices(): Promise<Service[]> {
   try {
-    const res = await fetch(`${CMS_URL}/api/services/`, { next: { revalidate: 60 } });
-    const json = await res.json();
+    const json = await safeFetch<unknown>('services/', { revalidate: 60 });
     const parsed = ServicesResponseSchema.safeParse(json);
     const arr = parsed.success
       ? Array.isArray(parsed.data)
@@ -46,8 +66,7 @@ export async function fetchServices(): Promise<Service[]> {
 
 export async function fetchTestimonials(): Promise<Testimonial[]> {
   try {
-    const res = await fetch(`${CMS_URL}/api/testimonials/`, { next: { revalidate: 60 } });
-    const json = await res.json();
+    const json = await safeFetch<unknown>('testimonials/', { revalidate: 60 });
     const parsed = TestimonialsResponseSchema.safeParse(json);
     const arr = parsed.success
       ? Array.isArray(parsed.data)

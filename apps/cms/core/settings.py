@@ -68,6 +68,7 @@ INSTALLED_APPS = [
 
     # Local
     'sitecontent',
+    'website',
 ]
 
 MIDDLEWARE = [
@@ -128,7 +129,19 @@ else:
     }
 
 # CORS (allow your web app origin)
-CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
+if DEBUG:
+    # Dev-friendly CORS/CSRF settings; restrict in production
+    CORS_ALLOW_ALL_ORIGINS = True
+    CORS_ALLOWED_ORIGINS = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+    ]
+    CSRF_TRUSTED_ORIGINS = [
+        'http://localhost:3000',
+        'http://localhost:3001',
+    ]
+else:
+    CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 
 # Static/media
 STATIC_URL = "/static/"
@@ -156,6 +169,15 @@ WAGTAILAPI_BASE_URL = os.getenv("WAGTAILAPI_BASE_URL", "http://localhost:8000")
 CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 SECURE_HSTS_SECONDS = 0 if DEBUG else 3600
+
+# DRF config
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 24,
+    'DEFAULT_THROTTLE_RATES': {
+        'leads': '10/hour',
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import { fetchTheme } from '@/lib/cms';
 import type { ReactNode } from 'react';
+import { env } from '@trades/utils';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -13,10 +14,15 @@ const geistMono = localFont({
   variable: '--font-geist-mono',
 });
 
-export const metadata: Metadata = {
-  title: 'Trades Website',
-  description: 'Professional trades and services',
-};
+export function generateMetadata(): Metadata {
+  const baseUrl = `https://${env.NEXT_PUBLIC_SITE_HOST}`;
+  return {
+    title: 'Trades Website',
+    description: 'Professional trades and services',
+    metadataBase: new URL(baseUrl),
+    alternates: { canonical: baseUrl },
+  };
+}
 
 export const dynamic = 'force-dynamic';
 

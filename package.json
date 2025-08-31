@@ -11,7 +11,7 @@
     "format": "prettier --write .",
     "check-types": "pnpm -F web exec tsc --noEmit && pnpm -F @trades/schemas exec tsc -p tsconfig.json --noEmit && pnpm -F @repo/ui exec tsc -p tsconfig.json --noEmit",
     "typecheck": "pnpm -F web exec tsc --noEmit && pnpm -F @trades/schemas exec tsc -p tsconfig.json --noEmit && pnpm -F @repo/ui exec tsc -p tsconfig.json --noEmit",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx,json,md,css}": [

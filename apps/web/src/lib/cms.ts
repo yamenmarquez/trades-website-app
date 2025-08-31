@@ -78,3 +78,24 @@ export async function fetchTestimonials(): Promise<Testimonial[]> {
     return [];
   }
 }
+
+export type SiteConfig = {
+  phone?: string;
+  email?: string;
+  address?: string;
+};
+
+export async function getSiteConfig(): Promise<SiteConfig> {
+  try {
+    const res = await fetch(`${API_BASE}config/`, { cache: 'no-store' });
+    if (!res.ok) throw new Error('config failed');
+    const json: Partial<SiteConfig> = await res.json();
+    return {
+      phone: json?.phone,
+      email: json?.email,
+      address: json?.address,
+    };
+  } catch {
+    return {};
+  }
+}

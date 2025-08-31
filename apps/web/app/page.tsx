@@ -1,102 +1,86 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
-import styles from "./page.module.css";
+import Link from 'next/link';
+import { fetchServices, fetchTestimonials } from '@/lib/cms';
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
-
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
+export default async function Home() {
+  const services = await fetchServices();
+  const testimonials = await fetchTestimonials();
 
   return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
-
-export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/web/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turborepo.com/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+    <main className="min-h-screen">
+      {/* Hero Section */}
+  <section className="gradient-brand text-white py-20">
+        <div className="container mx-auto px-4 text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6">
+            Professional Trades Services
+          </h1>
+          <p className="text-xl mb-8 max-w-2xl mx-auto">
+            Quality craftsmanship, reliable service, and exceptional results for all your project needs.
+          </p>
+          <div className="space-x-4">
+            <Link href="/contact" className="btn-contrast hover:bg-gray-100">
+              Get Free Quote
+            </Link>
+            <Link href="/portfolio" className="border-2 border-white text-white px-6 py-2 rounded-2xl font-medium hover:bg-white hover:text-primary transition-colors">
+              View Our Work
+            </Link>
+          </div>
         </div>
-        <Button appName="web" className={styles.secondary}>
-          Open alert
-        </Button>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turborepo.com?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turborepo.com →
-        </a>
-      </footer>
-    </div>
+      </section>
+
+      {/* Services Section */}
+  <section className="py-16" style={{ backgroundColor: "#f8fafc" }}>
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">Our Services</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {services.slice(0, 6).map((service: any) => (
+              <div key={service.id} className="card text-center">
+                <h3 className="text-xl font-semibold mb-3">{service.name}</h3>
+                <p className="mb-4" style={{ color: "#64748b" }}>{service.description}</p>
+                <Link href={`/services/${service.slug}`} className="btn-primary">
+                  Learn More
+                </Link>
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/services" className="btn-primary">
+              View All Services
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-12">What Our Customers Say</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {testimonials.slice(0, 3).map((testimonial: any) => (
+              <div key={testimonial.id} className="card">
+                <div className="flex items-center mb-4">
+                  <div className="text-yellow-400 text-xl">
+                    {"★".repeat(testimonial.rating)}
+                    {"☆".repeat(5 - testimonial.rating)}
+                  </div>
+                </div>
+                <p className="text-gray-700 mb-4">"{testimonial.text}"</p>
+                <p className="font-semibold">{testimonial.name}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+  <section className="bg-primary text-white py-16">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-3xl font-bold mb-4">Ready to Start Your Project?</h2>
+          <p className="text-xl mb-8">Contact us today for a free consultation and quote.</p>
+          <Link href="/contact" className="btn-contrast hover:bg-gray-100">
+            Get Started
+          </Link>
+        </div>
+      </section>
+    </main>
   );
 }

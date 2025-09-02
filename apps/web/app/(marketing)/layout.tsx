@@ -13,7 +13,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
     <>
       <AnnouncementBar />
       <Header />
-      <main>{children}</main>
+      <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8">{children}</main>
       <Footer />
       <StickyCTA />
     </>

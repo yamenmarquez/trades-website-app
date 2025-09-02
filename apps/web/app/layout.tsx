@@ -1,15 +1,13 @@
 import './globals.css';
-import type { ReactNode } from 'react';
 
 export const metadata = {
   title: 'Trades',
-  description: 'Professional trades services',
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="min-h-screen bg-white text-slate-900 antialiased">{children}</body>
     </html>
   );
 }

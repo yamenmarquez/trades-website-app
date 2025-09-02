@@ -130,6 +130,52 @@ export async function getSiteConfig(): Promise<SiteConfig> {
   }
 }
 
+// --- Compat layer for testimonials and media URLs ---
+const CMS = process.env.NEXT_PUBLIC_CMS_URL || 'http://127.0.0.1:8000';
+export type CompatTestimonial = {
+  id: number;
+  name: string;
+  quote: string;
+  rating?: number;
+  city?: string | null;
+  geoarea?: string | null;
+};
+
+export async function fetchTestimonialsCompat(limit?: number): Promise<CompatTestimonial[]> {
+  try {
+    const url = new URL('/api/testimonials/', CMS);
+    if (limit) url.searchParams.set('limit', String(limit));
+    const res = await fetch(url.toString(), { next: { revalidate: 60 } });
+    if (!res.ok) return [];
+    const data: unknown = await res.json();
+    const results = Array.isArray(data)
+      ? data
+      : typeof data === 'object' &&
+          data !== null &&
+          Array.isArray((data as { results?: unknown }).results)
+        ? (data as { results: unknown[] }).results
+        : [];
+    return (results as unknown[]).map((t: unknown) => {
+      const obj = (t ?? {}) as Record<string, unknown>;
+      return {
+        id: (obj.id as number) ?? (obj.pk as number) ?? 0,
+        name: (obj.name as string) ?? (obj.author as string) ?? 'Customer',
+        quote: (obj.quote as string) ?? (obj.text as string) ?? '',
+        rating: (obj.rating as number) ?? (obj.stars as number) ?? undefined,
+        city: (obj.city as string) ?? null,
+        geoarea: (obj.geoarea as string) ?? null,
+      } as CompatTestimonial;
+    });
+  } catch {
+    return [];
+  }
+}
+
+export function withCMS(url: string | null | undefined): string | undefined {
+  if (!url) return undefined;
+  if (/^https?:\/\//.test(url)) return url;
+  return `${CMS}${url.startsWith('/') ? '' : '/'}${url}`;
+}
 // --- Local SEO ---
 export type GeoArea = {
   id: number;

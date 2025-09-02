@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { fetchServices, fetchProjects, fetchGeoAreas } from '@/lib/cms';
 import { fetchTestimonials } from '@/lib/cms';
-import { Prose } from '@/components/Prose';
+import Prose from '@/components/Prose';
 import MasonryWithLightbox from '@/components/MasonryWithLightbox';
 import type { Service, Project } from '@trades/schemas';
 import type { GeoArea, Testimonial } from '@/lib/cms';
@@ -85,12 +85,12 @@ export default async function HomePage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold">Our Work</h2>
         <MasonryWithLightbox
-          items={(projects as Project[]).flatMap((p) =>
+          items={Array.isArray(projects) ? projects.flatMap((p: Project) =>
             (p.images || []).map((img) => ({
               url: img.url,
               alt: img.alt || p.title,
             })),
-          )}
+          ) : []}
         />
       </section>
 
@@ -98,7 +98,7 @@ export default async function HomePage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold">Service Areas</h2>
         <div className="flex flex-wrap gap-3">
-          {(areas as GeoArea[]).map((a) => (
+          {Array.isArray(areas) && areas.length > 0 ? areas.map((a: GeoArea) => (
             <Link
               key={a.slug || a.id}
               href={`/areas/${a.slug || ''}`}
@@ -106,7 +106,9 @@ export default async function HomePage() {
             >
               {a.name || a.slug}
             </Link>
-          ))}
+          )) : (
+            <p className="text-slate-500">No service areas available.</p>
+          )}
         </div>
       </section>
 

@@ -1,16 +1,21 @@
 import type { ReactNode } from 'react';
-import { AnnouncementBar, Header, Footer, StickyCTA } from '@/components';
-import { getSiteConfig } from '@/lib/cms';
+import { Metadata } from 'next';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import AnnouncementBar from '@/components/AnnouncementBar';
+import StickyCTA from '@/components/StickyCTA';
 
-export default async function MarketingLayout({ children }: { children: ReactNode }) {
-  const cfg = await getSiteConfig();
+export const metadata: Metadata = {
+  title: 'Trades',
+};
+export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <AnnouncementBar />
       <Header />
       <main>{children}</main>
       <Footer />
-      <StickyCTA phone={cfg?.phone} />
+      <StickyCTA />
     </>
   );
 }

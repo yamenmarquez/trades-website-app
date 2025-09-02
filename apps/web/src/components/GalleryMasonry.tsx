@@ -1,6 +1,10 @@
 'use client';
 
 import { useCallback } from 'react';
+const IS_DEV = (() => {
+  const g = globalThis as unknown as { process?: { env?: { NODE_ENV?: string } } };
+  return g.process?.env?.NODE_ENV !== 'production';
+})();
 import Image from 'next/image';
 
 type Item = { url: string; alt?: string };
@@ -24,8 +28,8 @@ export default function GalleryMasonry({ items, onOpen }: Props) {
             width={1200}
             height={800}
             className="w-full h-auto align-top block"
-            unoptimized
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            unoptimized={IS_DEV}
+            sizes="(min-width:1280px) 33vw, (min-width:768px) 50vw, 100vw"
           />
         </button>
       ))}

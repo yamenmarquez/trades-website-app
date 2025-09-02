@@ -10,6 +10,10 @@ import type { GeoArea } from '@/lib/cms';
 import Link from 'next/link';
 import { Prose } from '@/components';
 import Image from 'next/image';
+const IS_DEV = (() => {
+  const g = globalThis as unknown as { process?: { env?: { NODE_ENV?: string } } };
+  return g.process?.env?.NODE_ENV !== 'production';
+})();
 
 // Lightweight implementations for demo sections
 function Hero({ phone }: { phone?: string }) {
@@ -131,6 +135,7 @@ async function PortfolioStrip() {
                     alt={p.images[0].alt || p.title}
                     fill
                     sizes="(min-width:1280px) 33vw, (min-width:768px) 50vw, 100vw"
+                    unoptimized={IS_DEV}
                     className="object-cover transition-transform group-hover:scale-105"
                   />
                 )}

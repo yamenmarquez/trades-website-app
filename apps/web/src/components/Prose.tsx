@@ -1,6 +1,6 @@
 import sanitizeHtml from 'sanitize-html';
 
-export default function Prose({ html }: { html: string }) {
+export default function Prose({ html, className }: { html: string; className?: string }) {
   const clean = sanitizeHtml(html || '', {
     allowedTags: [
       'p',
@@ -29,6 +29,9 @@ export default function Prose({ html }: { html: string }) {
     },
   });
   return (
-    <div className="prose prose-slate max-w-none" dangerouslySetInnerHTML={{ __html: clean }} />
+    <div
+      className={`prose prose-slate max-w-none ${className ?? ''}`}
+      dangerouslySetInnerHTML={{ __html: clean }}
+    />
   );
 }

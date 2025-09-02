@@ -1,3 +1,4 @@
+// File removed; marketing pages now live under app/(marketing)/
 import Link from 'next/link';
 import { fetchServices, fetchTestimonials } from '@/lib/cms';
 import type { Service, Testimonial } from '@trades/schemas';

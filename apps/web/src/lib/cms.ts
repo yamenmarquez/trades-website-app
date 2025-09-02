@@ -172,7 +172,19 @@ export async function fetchCoverage(params?: {
   if (params?.service) qs.set('service', params.service);
   if (params?.city) qs.set('city', params.city);
   if (params?.ready) qs.set('ready', 'true');
-  return safeFetch<Coverage[]>(`coverage/${qs.toString() ? `?${qs}` : ''}`, { revalidate: 300 });
+  try {
+    const data = await safeFetch<unknown>(`coverage/${qs.toString() ? `?${qs}` : ''}`, {
+      revalidate: 300,
+    });
+    const list: unknown = Array.isArray(data)
+      ? data
+      : typeof data === 'object' && data && 'results' in data
+        ? (data as { results: unknown }).results
+        : [];
+    return (Array.isArray(list) ? list : []) as Coverage[];
+  } catch {
+    return [];
+  }
 }
 
 export async function fetchCoverageDetail(

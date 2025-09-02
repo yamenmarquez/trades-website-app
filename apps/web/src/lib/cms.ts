@@ -83,6 +83,12 @@ export type SiteConfig = {
   phone?: string;
   email?: string;
   address?: string;
+  local_seo_enabled?: boolean;
+  primary_city_slug?: string;
+  gbp_url?: string;
+  service_radius_km?: number;
+  default_utm_source?: string;
+  default_utm_campaign?: string;
 };
 
 export async function getSiteConfig(): Promise<SiteConfig> {
@@ -94,8 +100,69 @@ export async function getSiteConfig(): Promise<SiteConfig> {
       phone: json?.phone,
       email: json?.email,
       address: json?.address,
+      local_seo_enabled: json?.local_seo_enabled ?? false,
+      primary_city_slug: json?.primary_city_slug,
+      gbp_url: json?.gbp_url,
+      service_radius_km: json?.service_radius_km,
+      default_utm_source: json?.default_utm_source,
+      default_utm_campaign: json?.default_utm_campaign,
     };
   } catch {
     return {};
   }
+}
+
+// --- Local SEO ---
+export type GeoArea = {
+  id: number;
+  type: 'city' | 'neighborhood';
+  name: string;
+  slug: string;
+  parent_city_slug?: string | null;
+  center_lat?: number | null;
+  center_lng?: number | null;
+};
+export async function fetchGeoAreas(params?: {
+  type?: 'city' | 'neighborhood';
+  parent?: string;
+}): Promise<GeoArea[]> {
+  const qs = new URLSearchParams();
+  if (params?.type) qs.set('type', params.type);
+  if (params?.parent) qs.set('parent', params.parent);
+  const json = await safeFetch<GeoArea[]>(`geoareas/${qs.toString() ? `?${qs}` : ''}`, {
+    revalidate: 60,
+  });
+  return json;
+}
+
+export type Coverage = {
+  id: number;
+  service: { slug: string; name: string };
+  geo: { slug: string; name: string; type: string };
+  status: string;
+  hero_image?: { url: string; alt?: string } | null;
+  ready: boolean;
+  reviews_summary?: { avg: number | null; count: number } | null;
+};
+export async function fetchCoverage(params?: {
+  service?: string;
+  city?: string;
+  ready?: boolean;
+}): Promise<Coverage[]> {
+  const qs = new URLSearchParams();
+  if (params?.service) qs.set('service', params.service);
+  if (params?.city) qs.set('city', params.city);
+  if (params?.ready) qs.set('ready', 'true');
+  return safeFetch<Coverage[]>(`coverage/${qs.toString() ? `?${qs}` : ''}`, { revalidate: 300 });
+}
+
+export async function fetchCoverageDetail(
+  serviceSlug: string,
+  citySlug: string,
+): Promise<Coverage | undefined> {
+  const res = await fetch(`${API_BASE}coverage/${serviceSlug}/${citySlug}/`, {
+    next: { revalidate: 600 },
+  });
+  if (!res.ok) return undefined; // 404 when not ready
+  return (await res.json()) as Coverage;
 }

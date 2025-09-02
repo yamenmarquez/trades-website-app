@@ -89,6 +89,8 @@ class Testimonial(models.Model):
     source = models.CharField(max_length=120, blank=True)
     quote = models.TextField()
     date = models.DateField(null=True, blank=True)
+    # Optional local SEO anchor
+    geoarea = models.ForeignKey('website.GeoArea', null=True, blank=True, on_delete=models.SET_NULL, related_name='testimonials')
 
     panels = [
         FieldPanel('name'),
@@ -96,10 +98,29 @@ class Testimonial(models.Model):
         FieldPanel('source'),
         FieldPanel('quote'),
         FieldPanel('date'),
+    FieldPanel('geoarea'),
     ]
 
     def __str__(self):
         return f'{self.name} ({self.rating}★)'
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['geoarea']),
+        ]
+
+    @property
+    def short_quote(self):
+        return (self.quote[:80] + '…') if len(self.quote) > 80 else self.quote
+
+    # Wagtail Snippet admin options
+    @classmethod
+    def get_admin_display_title(cls):  # optional nicer header
+        return 'Testimonials'
+
+    @property
+    def admin_display_title(self):
+        return f"{self.name} ({self.rating}★) - {getattr(self.geoarea, 'name', '—')}"
 
 
 # ---------- Project (legacy snippet) ----------

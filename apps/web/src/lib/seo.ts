@@ -88,3 +88,39 @@ export function ldFAQ(faqs: Array<{ q: string; a: string }>) {
     })),
   };
 }
+
+export function ldImage(img: { url: string; alt?: string }) {
+  return {
+    '@type': 'ImageObject',
+    url: img.url,
+    name: img.alt ?? 'image',
+  } as const;
+}
+
+export function ldService(input: {
+  name: string;
+  area: { type: 'city' | 'neighborhood'; name: string };
+  images?: { url: string; alt?: string }[];
+  rating?: { value: number; count?: number };
+}) {
+  const data: Record<string, unknown> = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    serviceType: input.name,
+    areaServed: {
+      '@type': input.area.type === 'city' ? 'City' : 'Neighborhood',
+      name: input.area.name,
+    },
+  };
+  if (input.images?.length) {
+    (data as Record<string, unknown>).image = input.images.map((i) => ldImage(i));
+  }
+  if (input.rating) {
+    (data as Record<string, unknown>).aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: input.rating.value,
+      ratingCount: input.rating.count ?? 1,
+    };
+  }
+  return data;
+}

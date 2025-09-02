@@ -6,6 +6,10 @@ from wagtail import blocks
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.images import get_image_model_string
 from taggit.managers import TaggableManager
+try:
+    from .models_local import GeoArea
+except Exception:  # pragma: no cover
+    GeoArea = None  # type: ignore
 
 ImageStr = get_image_model_string()
 
@@ -88,6 +92,9 @@ class ProjectPage(Page):
         ImageStr, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
     )
     gallery = StreamField([("image", ImageChooserBlock())], use_json_field=True, blank=True)
+    # optional local SEO relation to cities
+    if GeoArea is not None:
+        geoareas = models.ManyToManyField('website.GeoArea', blank=True, related_name='projects')
 
     content_panels = Page.content_panels + [
         FieldPanel("city"),
@@ -95,4 +102,5 @@ class ProjectPage(Page):
         FieldPanel("before_image"),
         FieldPanel("after_image"),
         FieldPanel("gallery"),
+    FieldPanel("geoareas") if GeoArea is not None else FieldPanel("gallery"),
     ]

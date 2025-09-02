@@ -1,9 +1,15 @@
 import { CMS_URL } from './cms';
 import { ProjectSchema, ProjectsResponseSchema, type Project } from '@trades/schemas';
 
-export async function fetchProjects(): Promise<Project[]> {
+export async function fetchProjects(params?: {
+  service?: string;
+  city?: string;
+}): Promise<Project[]> {
   try {
-    const url = `${CMS_URL}/api/projects/`;
+    const qs = new URLSearchParams();
+    if (params?.service) qs.set('service', params.service);
+    if (params?.city) qs.set('city', params.city);
+    const url = `${CMS_URL}/api/projects/${qs.toString() ? `?${qs}` : ''}`;
     const res = await fetch(url, { next: { revalidate: 60 } });
     const data = await res.json();
     const parsed = ProjectsResponseSchema.safeParse(data);

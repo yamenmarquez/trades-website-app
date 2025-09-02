@@ -4,6 +4,11 @@ from rest_framework.decorators import api_view, permission_classes
 from wagtail.models import Site as WagtailSite
 from .models import Testimonial, ServiceArea, Lead
 from .models_pages import ServicePage, ProjectPage
+try:
+    from .models_local import GeoArea, ServiceCoverage
+except Exception:  # pragma: no cover
+    GeoArea = None  # type: ignore
+    ServiceCoverage = None  # type: ignore
 from .serializers import (
     TestimonialSerializer,
     ServiceAreaSerializer,
@@ -52,6 +57,16 @@ class ProjectViewSet(viewsets.ReadOnlyModelViewSet):
         ctx['request'] = self.request
         return ctx
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        service = self.request.query_params.get('service')
+        city = self.request.query_params.get('city')
+        if service:
+            qs = qs.filter(services__name__iexact=service) | qs.filter(services__name__icontains=service)
+        if city and GeoArea is not None:
+            qs = qs.filter(geoareas__slug=city) | qs.filter(city__iexact=city)
+        return qs.distinct()
+
 
 class TestimonialViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Testimonial.objects.all().order_by('-date')
@@ -88,3 +103,55 @@ def themes_alias(request):
     site = WagtailSite.find_for_request(request) or WagtailSite.objects.first()
     data = ConfigSerializer.from_site(site)
     return Response(data)
+
+
+# ---- Local SEO Endpoints ----
+if GeoArea is not None:
+    class GeoAreaViewSet(viewsets.ReadOnlyModelViewSet):
+        queryset = GeoArea.objects.all().order_by('name')
+        serializer_class = __import__('website.serializers', fromlist=['GeoAreaSerializer']).GeoAreaSerializer
+        permission_classes = [PublicReadOnly]
+        lookup_field = 'slug'
+
+        def get_queryset(self):
+            qs = super().get_queryset()
+            t = self.request.query_params.get('type')
+            parent = self.request.query_params.get('parent')
+            if t:
+                qs = qs.filter(type=t)
+            if parent:
+                qs = qs.filter(parent_city__slug=parent)
+            return qs
+
+if ServiceCoverage is not None:
+    class ServiceCoverageViewSet(viewsets.ReadOnlyModelViewSet):
+        queryset = ServiceCoverage.objects.select_related('service', 'geoarea').all()
+        serializer_class = __import__('website.serializers', fromlist=['ServiceCoverageSerializer']).ServiceCoverageSerializer
+        permission_classes = [PublicReadOnly]
+        lookup_field = 'id'
+
+        def get_queryset(self):
+            qs = super().get_queryset()
+            service = self.request.query_params.get('service')
+            city = self.request.query_params.get('city')
+            ready = self.request.query_params.get('ready')
+            if service:
+                qs = qs.filter(service__slug=service)
+            if city:
+                qs = qs.filter(geoarea__slug=city)
+            if ready in ('1', 'true', 'True'):
+                ids = [c.id for c in qs if c.status == 'ready' and c.passes_quality_minimum()]
+                qs = qs.filter(id__in=ids)
+            return qs
+
+    @api_view(['GET'])
+    @permission_classes([PublicReadOnly])
+    def coverage_detail(request, service, city):
+        try:
+            c = ServiceCoverage.objects.select_related('service', 'geoarea').get(service__slug=service, geoarea__slug=city)
+        except ServiceCoverage.DoesNotExist:  # type: ignore
+            return Response({'detail': 'Not found'}, status=404)
+        if not (c.status == 'ready' and c.passes_quality_minimum()):
+            return Response({'detail': 'Not found'}, status=404)
+        ser = __import__('website.serializers', fromlist=['ServiceCoverageSerializer']).ServiceCoverageSerializer(c, context={'request': request})
+        return Response(ser.data)

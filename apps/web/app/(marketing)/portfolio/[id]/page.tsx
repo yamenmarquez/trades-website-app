@@ -43,6 +43,15 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
       { name: 'Portfolio', path: '/portfolio' },
       { name: project.title, path: `/portfolio/${project.slug}` },
     ]),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      itemListElement: images.map((img, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        item: { '@type': 'ImageObject', contentUrl: img.url, name: img.alt || '' },
+      })),
+    },
   ];
 
   return (

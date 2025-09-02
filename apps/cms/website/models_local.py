@@ -22,6 +22,7 @@ class GeoArea(models.Model):
     center_lat = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     center_lng = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     population_note = models.TextField(blank=True)
+    neighbors = models.ManyToManyField('self', symmetrical=True, blank=True, related_name='neighbor_of')
     permits_links = StreamField([
         ("link", blocks.StructBlock([
             ("label", blocks.CharBlock()),
@@ -38,11 +39,14 @@ class GeoArea(models.Model):
         FieldPanel("center_lat"),
         FieldPanel("center_lng"),
         FieldPanel("population_note"),
-        FieldPanel("permits_links"),
+    FieldPanel("permits_links"),
     ]
 
     class Meta:
         ordering = ["type", "name"]
+        indexes = [
+            models.Index(fields=["slug"]),
+        ]
 
     def save(self, *args, **kwargs):
         if not self.slug:

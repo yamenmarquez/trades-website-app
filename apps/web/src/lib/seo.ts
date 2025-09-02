@@ -3,7 +3,8 @@ import { env } from '@trades/utils';
 
 export function absoluteUrl(path = '') {
   const base = `https://${env.NEXT_PUBLIC_SITE_HOST}`.replace(/\/+$/, '');
-  const p = path ? (path.startsWith('/') ? path : `/${path}`) : '';
+  const pRaw = path ? (path.startsWith('/') ? path : `/${path}`) : '';
+  const p = pRaw.replace(/\/+?/g, '/').toLowerCase();
   return `${base}${p}`;
 }
 

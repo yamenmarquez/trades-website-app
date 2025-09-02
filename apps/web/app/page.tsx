@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { fetchServices, fetchTestimonials } from '@/lib/cms';
 import type { Service, Testimonial } from '@trades/schemas';
+import Prose from '@/components/Prose';
 
 export default async function Home() {
   const services = await fetchServices();
@@ -35,12 +36,12 @@ export default async function Home() {
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Our Services</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.slice(0, 6).map((service: Service) => (
+            {services.slice(0, 6).map((service: Service & { description_html?: string }) => (
               <div key={service.id} className="card text-center">
                 <h3 className="text-xl font-semibold mb-3">{service.name}</h3>
-                <p className="mb-4" style={{ color: '#64748b' }}>
-                  {service.description}
-                </p>
+                <div className="mb-4" style={{ color: '#64748b' }}>
+                  <Prose html={service.description_html || ''} />
+                </div>
                 <Link href={`/services/${service.slug}`} className="btn-primary">
                   Learn More
                 </Link>
@@ -84,6 +85,25 @@ export default async function Home() {
           <Link href="/contact" className="btn-contrast hover:bg-gray-100">
             Get Started
           </Link>
+        </div>
+      </section>
+
+      {/* Demo quick links */}
+      <section className="mt-12 container mx-auto px-4">
+        <div className="rounded-xl border p-6">
+          <h2 className="text-lg font-semibold mb-2">Demo rápida</h2>
+          <p className="text-sm text-neutral-700 mb-4">Explora las nuevas vistas y filtros:</p>
+          <div className="flex flex-wrap gap-3">
+            <Link className="btn-secondary" href="/portfolio">
+              Ver Portafolio
+            </Link>
+            <Link className="btn-secondary" href="/portfolio?service=glass-installation&city=miami">
+              Portafolio: Glass en Miami
+            </Link>
+            <Link className="btn-secondary" href="/services/glass-installation/miami">
+              Servicio en Miami
+            </Link>
+          </div>
         </div>
       </section>
     </main>

@@ -1,0 +1,118 @@
+¡Buenísimo enfoque! Para exprimir **SEO local** al máximo con esa jerarquía, te dejo un blueprint concreto (contenido, rutas y modelos) listo para meter en tu stack Next.js + Wagtail y evitar “doorway pages” mientras escalas por ciudad/servicio. Esto sigue lo que validaste en tu doc: SEO local es crítico y hay que especializar plantillas y datos por oficio/área, no usar genéricos. &#x20;
+
+# 1) Rutas canónicas y duplicados
+
+* **Ruta canónica única**: `/servicios/[servicio]/[ciudad]/[barrio?]/`
+
+  * Ej.: `/servicios/puertas-de-vidrio/houston/river-oaks/`
+* **Alias 301** desde `/areas-servicio/[ciudad]/[servicio]/` → a la canónica de arriba.
+  Motivo: una sola URL por “intención local” evita canibalización/duplicados y consolida señales.
+* **Hubs** indexables:
+
+  * `/servicios/[servicio]/` (hub del servicio, sin targeting de ciudad).
+  * `/areas-servicio/[ciudad]/` (hub de ciudad mostrando todos los servicios).
+  * `/blog/[contenido-local]/` (posts con foco local y enlaces contextuales).
+
+# 2) Modelos en CMS (Wagtail)
+
+Crea entidades con relaciones para generar páginas únicas y ricas (no thin content):
+
+**Service**
+`name, slug, intro, benefits[], faqs[], cta, price_range_hint, permits_note_generic`
+
+**GeoArea**
+`type: city|neighborhood, name, slug, parent_city?, geojson, center_lat, center_lng, population_note, permits_links[]`
+
+**ServiceCoverage (join)**  → genera las páginas /servicios/\[servicio]/\[ciudad]/\[barrio?]/
+`service_id, geoarea_id, status(draft|ready), unique_intro, pain_points_local, process_steps_local[], permits_local[], starting_price_local, cta_local, hero_media, schema_overrides`
+
+**Project** (portafolio)
+`title, services[], geoareas[], gallery[], before_after[], date, outcome_note`
+
+**Testimonial**
+`author, rating, quote, service?, geoarea? (para anclarlo localmente)`
+
+**Post (blog)**
+`title, slug, body, city_tag?, service_tag?`
+
+> Reglas:
+>
+> * Publicar **solo** si `ServiceCoverage.status = ready` y pasa checks (≥700 palabras únicas, ≥6 módulos de contenido, ≥6 fotos locales, ≥1 testimonio del área). Evita “doorway pages”.&#x20;
+
+# 3) Plantillas (bloques mínimos por tipo de página)
+
+## A. Landing de Servicio × Ciudad (core para SEO local)
+
+* H1: `{Servicio} en {Ciudad}`
+* Párrafo “dolor local” (reparaciones típicas, clima, códigos/permits del municipio).
+* Grid de **beneficios** + “Por qué {Marca} en {Ciudad}”.
+* **Galería** (Projects filtrados por `service` + `geoarea`) con lightbox.
+* **Testimonios del área** (anclados a la ciudad/barrio).
+* **Mapa** con `hasMap` + límites de servicio (`GeoArea.geojson`).
+* **FAQs locales** (entrega/tiempos, garantías según ciudad).
+* **CTA** (tel/WhatsApp/Calendly) con “Atendemos hoy en {Ciudad}”.
+* **Sección de barrios** colindantes (enlaces internos a otras landings).
+* **Artículos relacionados** del blog local.
+* **Datos de permisos**: link a autoridad del código local.
+
+## B. Hub de Servicio `/servicios/[servicio]/`
+
+* Explicación estándar del servicio + carrusel de ciudades cubiertas.
+* Proyectos destacados multi-ciudad.
+* Preguntas frecuentes generales.
+
+## C. Hub de Ciudad `/areas-servicio/[ciudad]/`
+
+* Hero: “Contratistas de {categoría} en {Ciudad}”.
+* Lista de **todos los servicios** como tarjetas → deep links a landings.
+* Mini-guías locales (códigos, clima, temporadas).
+* Carrusel de barrios.
+
+## D. Blog local
+
+* Taxonomía por `city_tag` y `service_tag`.
+* Contenidos “how-to” adaptados al clima y normativas de {Ciudad} con enlaces a landings.
+
+# 4) SEO técnico que mueve la aguja
+
+* **Canonical**: en landings de alias coloca `<link rel="canonical" href="/servicios/[servicio]/[ciudad]/[barrio?]/">`.
+* **Breadcrumbs**: Home › Servicios › Servicio › Ciudad › Barrio.
+* **Sitemaps** separados: `/sitemap-services.xml`, `/sitemap-geo.xml`, `/sitemap-blog.xml`. Solo URLs “ready”.
+* **Schema JSON-LD** por página:
+
+  * `LocalBusiness` + `Service` con `"serviceType": "{Servicio}"`, `"areaServed": [{City}, {Neighborhood}]`, `hasOfferCatalog` si aplicas paquetes, `aggregateRating` y `Review` cuando existan.
+  * `FAQPage` para FAQs.
+  * `ImageObject` para cada foto con `contentUrl` y `caption` (mejora de imágenes en SERP).
+* **Interlinking programático**:
+
+  * En cada landing, módulos “También atendemos en…” (barrios vecinos) y “Servicios relacionados en {Ciudad}”.
+* **Velocidad/UX**: Next.js ISR para landings, imágenes optimizadas, blur placeholders, fonts locales. (El stack Next favorece rendimiento/SEO; cuida complejidad operativa). &#x20;
+* **Reglas de indexación**:
+
+  * `noindex` si no hay suficiente contenido único (ver checks).
+  * `index,follow` al pasar el umbral de calidad.
+
+# 5) Contenido único a escala (sin doorway)
+
+Implementa una **matriz de contenido** en `ServiceCoverage` con tokens:
+
+* `{servicio}`, `{ciudad}`, `{barrio}`, `{condicion_climatica}`, `{material_local}`, `{permits_link}`, `{precio_desde}`, `{tiempo_respuesta}`, `{caso_de_estudio}`.
+* Auto-plantilla con variaciones y **slots obligatorios** que se nutren de Proyectos/Testimonios reales de esa zona. Publica solo si hay activos locales suficientes (QA gate).
+
+# 6) Cómo encaja con el negocio (por qué esto funciona)
+
+* El **SEO local** es el canal de mayor ROI en home services; tu estructura “servicio × ciudad” + hubs y blog refuerza intención y relevancia geográfica.&#x20;
+* Plantillas **específicas por oficio** + datos locales superan plantillas genéricas y aumentan conversión/posicionamiento.&#x20;
+
+---
+
+## Checklist de implementación (rápido)
+
+1. Definir slugs canónicos y 301 de alias.
+2. Crear modelos `Service`, `GeoArea`, `ServiceCoverage`, `Project`, `Testimonial`, `Post`.
+3. Construir plantillas A–D y los módulos descritos.
+4. Validadores de publicación (QA gate) + sitemaps por tipo.
+5. JSON-LD por página + breadcrumbs + canonicals.
+6. Widgets de enlaces internos (servicios relacionados, barrios vecinos).
+
+Si quieres, en la próxima iteración te armo los **schemas JSON-LD base** y el **mapa de rutas de Next.js** (app router) con los loaders para Wagtail.

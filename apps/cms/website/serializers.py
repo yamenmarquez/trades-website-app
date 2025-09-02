@@ -1,7 +1,9 @@
 from rest_framework import serializers
+import re
 from wagtail.images import get_image_model
 from .models import Service, Project, MediaAsset, Testimonial, ServiceArea, Lead
 from .models_pages import ServicePage, ProjectPage
+from wagtail.rich_text import expand_db_html
 try:
     from .models_local import GeoArea, ServiceCoverage
 except Exception:  # pragma: no cover
@@ -39,6 +41,27 @@ class MediaAssetSerializer(serializers.ModelSerializer):
         return rendition_url_abs(request, obj.image)
 
 
+def _sanitize_html_basic(html: str) -> str:
+    """Very small sanitizer to remove obvious XSS vectors.
+    - strips <script>...</script>
+    - removes inline event handlers (on*)
+    - neutralizes javascript: URIs in href attributes
+    Note: Frontend also sanitizes. This keeps API reasonably safe.
+    """
+    if not html:
+        return ""
+    # Drop script blocks
+    html = re.sub(r"<\s*script[^>]*>.*?<\s*/\s*script\s*>", "", html, flags=re.I | re.S)
+    # Remove inline event handlers like onclick="..."
+    html = re.sub(r"\son\w+\s*=\s*\"[^\"]*\"", "", html, flags=re.I)
+    html = re.sub(r"\son\w+\s*=\s*'[^']*'", "", html, flags=re.I)
+    html = re.sub(r"\son\w+\s*=\s*[^\s>]+", "", html, flags=re.I)
+    # Neutralize javascript: links
+    html = re.sub(r"(?i)href\s*=\s*\"javascript:[^\"]*\"", 'href="#"', html)
+    html = re.sub(r"(?i)href\s*=\s*'javascript:[^']*'", "href='#'", html)
+    return html
+
+
 class ServiceSerializer(serializers.ModelSerializer):
     hero = serializers.SerializerMethodField()
     tags = serializers.SerializerMethodField()
@@ -65,10 +88,26 @@ class ServicePageSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     description = serializers.SerializerMethodField()
     icon = serializers.SerializerMethodField()
+    hero = serializers.SerializerMethodField()
+    faqs = serializers.SerializerMethodField()
+    gallery = serializers.SerializerMethodField()
+    cta_hint = serializers.SerializerMethodField()
+    description_html = serializers.SerializerMethodField()
 
     class Meta:
         model = ServicePage
-        fields = ["id", "name", "slug", "description", "icon"]
+        fields = [
+            "id",
+            "name",
+            "slug",
+            "description",
+            "icon",
+            "hero",
+            "faqs",
+            "gallery",
+            "cta_hint",
+            "description_html",
+        ]
 
     def get_name(self, obj):
         return obj.title
@@ -77,9 +116,61 @@ class ServicePageSerializer(serializers.ModelSerializer):
         # Use intro rich text as description string
         return getattr(obj, "intro", "") or ""
 
+    def get_description_html(self, obj):
+        try:
+            html = expand_db_html(getattr(obj, "intro", "") or "")
+            return _sanitize_html_basic(html)
+        except Exception:
+            return ""
+
     def get_icon(self, obj):
         # No icon concept on page; keep null/None
         return None
+
+    def get_hero(self, obj):
+        img = getattr(obj, 'hero', None)
+        if not img:
+            return None
+        request = self.context.get('request')
+        try:
+            url = img.get_rendition('width-1200|format-webp').url
+        except Exception:
+            url = getattr(getattr(img, 'file', None), 'url', None)
+        if request is not None and url and not str(url).startswith('http'):
+            url = request.build_absolute_uri(url)
+        return { 'url': url, 'alt': obj.title }
+
+    def get_faqs(self, obj):
+        items = []
+        try:
+            for blk in obj.body:
+                if blk.block_type == 'faq' and isinstance(blk.value, dict):
+                    items.append({'q': blk.value.get('q') or '', 'a': str(blk.value.get('a') or '')})
+        except Exception:
+            pass
+        return items
+
+    def get_gallery(self, obj):
+        items = []
+        try:
+            for blk in obj.body:
+                if blk.block_type == 'image' and blk.value:
+                    img = blk.value
+                    try:
+                        url = img.get_rendition('width-1200|format-webp').url
+                    except Exception:
+                        url = getattr(getattr(img, 'file', None), 'url', None)
+                    items.append({ 'url': url, 'alt': obj.title })
+        except Exception:
+            pass
+        request = self.context.get('request')
+        for it in items:
+            if request is not None and it['url'] and not str(it['url']).startswith('http'):
+                it['url'] = request.build_absolute_uri(it['url'])
+        return items
+
+    def get_cta_hint(self, obj):
+        return getattr(obj, 'cta_hint', '') or ''
 
 
 class TestimonialSerializer(serializers.ModelSerializer):
@@ -128,10 +219,11 @@ class ProjectPageSerializer(serializers.ModelSerializer):
     # Public shape compatible with requested schema
     images = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
+    intro_html = serializers.SerializerMethodField()
 
     class Meta:
         model = ProjectPage
-        fields = ["id", "title", "slug", "city", "images", "url"]
+        fields = ["id", "title", "slug", "city", "images", "url", "intro_html"]
 
     def get_url(self, obj):
         try:
@@ -163,6 +255,13 @@ class ProjectPageSerializer(serializers.ModelSerializer):
         except Exception:
             pass
         return items
+
+    def get_intro_html(self, obj: ProjectPage):
+        try:
+            val = getattr(obj, 'intro', '') or ''
+            return _sanitize_html_basic(expand_db_html(val))
+        except Exception:
+            return ''
 
 
 class LeadSerializer(serializers.ModelSerializer):
@@ -228,10 +327,11 @@ class ConfigSerializer(serializers.Serializer):
 if GeoArea is not None:
     class GeoAreaSerializer(serializers.ModelSerializer):
         parent_city_slug = serializers.SerializerMethodField()
+        neighbors = serializers.SlugRelatedField(slug_field='slug', many=True, read_only=True)
 
         class Meta:
             model = GeoArea
-            fields = ["id", "type", "name", "slug", "parent_city_slug", "center_lat", "center_lng"]
+            fields = ["id", "type", "name", "slug", "parent_city_slug", "center_lat", "center_lng", "neighbors"]
 
         def get_parent_city_slug(self, obj):
             return obj.parent_city.slug if obj.parent_city_id else None

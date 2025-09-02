@@ -22,6 +22,15 @@ export default async function PortfolioPage({
   return (
     <main className="container mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-6">Our Work</h1>
+      {/* Demo chips for quick navigation */}
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Link href="/portfolio?service=glass-installation&city=miami" className="link-brand">
+          Glass Installation · Miami
+        </Link>
+        <Link href="/portfolio?service=shower-enclosures&city=miami" className="link-brand">
+          Shower Enclosures · Miami
+        </Link>
+      </div>
       {/* minimal chips using query params; could be enhanced with services list */}
       <div className="mb-6 flex flex-wrap gap-2">
         {sp?.service && (

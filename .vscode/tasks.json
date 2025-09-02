@@ -45,6 +45,33 @@
 				"$gcc"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Install Django deps with uv (fallback pip)",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"cd apps/cms; if (Test-Path uv.lock) { echo 'Using uv'; (Get-Command uv -ErrorAction SilentlyContinue) ?? (iwr https://astral.sh/uv/install.ps1 -UseBasicParsing | iex); uv sync } else { python -m pip install --upgrade pip; python -m pip install -e . }"
+			],
+			"isBackground": false,
+			"group": "build"
+		},
+		{
+			"label": "Django makemigrations+runserver (website)",
+			"type": "shell",
+			"command": "pwsh",
+			"args": [
+				"-NoProfile",
+				"-Command",
+				"python -V; pip -V; echo '== migrate =='; cd apps/cms; python manage.py makemigrations website; python manage.py migrate --noinput; echo '== seed =='; python manage.py load_seed; echo '== runserver =='; python manage.py runserver 8000"
+			],
+			"isBackground": true,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
 		}
 	]
 }

@@ -4,12 +4,15 @@ import {
   ThemeSchema,
   ServiceSchema,
   TestimonialSchema,
+  ProjectSchema,
   ThemesResponseSchema,
   ServicesResponseSchema,
   TestimonialsResponseSchema,
+  ProjectsResponseSchema,
   type Theme,
   type Service,
   type Testimonial,
+  type Project,
 } from '@trades/schemas';
 
 const API_BASE = new URL('/api/', CMS_URL).toString();
@@ -79,6 +82,21 @@ export async function fetchTestimonials(): Promise<Testimonial[]> {
   }
 }
 
+export async function fetchProjects(): Promise<Project[]> {
+  try {
+    const json = await safeFetch<unknown>('projects/', { revalidate: 60 });
+    const parsed = ProjectsResponseSchema.safeParse(json);
+    const arr = parsed.success
+      ? Array.isArray(parsed.data)
+        ? parsed.data
+        : parsed.data.results
+      : [];
+    return arr.map((p: unknown) => ProjectSchema.parse(p));
+  } catch {
+    return [];
+  }
+}
+
 export type SiteConfig = {
   phone?: string;
   email?: string;
@@ -121,6 +139,7 @@ export type GeoArea = {
   parent_city_slug?: string | null;
   center_lat?: number | null;
   center_lng?: number | null;
+  neighbors?: string[];
 };
 export async function fetchGeoAreas(params?: {
   type?: 'city' | 'neighborhood';

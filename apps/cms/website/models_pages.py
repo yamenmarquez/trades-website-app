@@ -36,6 +36,7 @@ class ServicePage(Page):
         ImageStr, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
     )
     intro = RichTextField(blank=True)
+    cta_hint = models.CharField(max_length=160, blank=True)
     body = StreamField(
         [
             (
@@ -60,6 +61,7 @@ class ServicePage(Page):
     content_panels = Page.content_panels + [
         FieldPanel("hero"),
         FieldPanel("intro"),
+    FieldPanel("cta_hint"),
         FieldPanel("body"),
     ]
 

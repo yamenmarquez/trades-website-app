@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'wagtail.embeds',
     'wagtail.sites',
     'wagtail.contrib.settings',
+    'wagtail.contrib.redirects',
 
     # Tags (required by Wagtail images/documents)
     'taggit',
@@ -80,6 +81,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'

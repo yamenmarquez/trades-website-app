@@ -3,6 +3,8 @@ import { fetchCoverage, fetchCoverageDetail, getSiteConfig } from '@/lib/cms';
 import { notFound } from 'next/navigation';
 import { absoluteUrl, ldBreadcrumb, ldService } from '@/lib/seo';
 import LocalProof from '@/components/LocalProof';
+import RelatedServices from '@/components/RelatedServices';
+import NearbyAreas from '@/components/NearbyAreas';
 
 type Params = { slug: string; city: string };
 
@@ -69,6 +71,8 @@ export default async function Page({ params }: { params: Promise<Params> }) {
         {/* TODO: render unique_intro, local modules, gallery filtered by service+city, testimonials, map, FAQs, CTA */}
         <p className="opacity-80">Local coverage page (ready: {String(cov.ready)}).</p>
         <LocalProof serviceSlug={slug} citySlug={city} />
+        <RelatedServices citySlug={city} currentService={slug} />
+        <NearbyAreas citySlug={city} serviceSlug={slug} />
       </main>
     </>
   );

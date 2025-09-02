@@ -3,15 +3,12 @@ export const CMS_URL = env.CMS_BASE_URL;
 import {
   ThemeSchema,
   ServiceSchema,
-  TestimonialSchema,
   ProjectSchema,
   ThemesResponseSchema,
   ServicesResponseSchema,
-  TestimonialsResponseSchema,
   ProjectsResponseSchema,
   type Theme,
   type Service,
-  type Testimonial,
   type Project,
 } from '@trades/schemas';
 
@@ -67,20 +64,6 @@ export async function fetchServices(): Promise<Service[]> {
   }
 }
 
-export async function fetchTestimonials(): Promise<Testimonial[]> {
-  try {
-    const json = await safeFetch<unknown>('testimonials/', { revalidate: 60 });
-    const parsed = TestimonialsResponseSchema.safeParse(json);
-    const arr = parsed.success
-      ? Array.isArray(parsed.data)
-        ? parsed.data
-        : parsed.data.results
-      : [];
-    return arr.map((t: unknown) => TestimonialSchema.parse(t));
-  } catch {
-    return [];
-  }
-}
 
 export async function fetchProjects(): Promise<Project[]> {
   try {
@@ -132,6 +115,16 @@ export async function getSiteConfig(): Promise<SiteConfig> {
 
 // --- Compat layer for testimonials and media URLs ---
 const CMS = process.env.NEXT_PUBLIC_CMS_URL || 'http://127.0.0.1:8000';
+
+export type Testimonial = {
+  id: number;
+  name: string;
+  quote: string;
+  rating?: number;
+  city?: string | null;
+  geoarea?: string | null;
+};
+
 export type CompatTestimonial = {
   id: number;
   name: string;
@@ -140,6 +133,28 @@ export type CompatTestimonial = {
   city?: string | null;
   geoarea?: string | null;
 };
+
+export async function fetchTestimonials(limit?: number): Promise<Testimonial[]> {
+  try {
+    const url = new URL('/api/testimonials/', CMS);
+    if (limit) url.searchParams.set('limit', String(limit));
+    const res = await fetch(url.toString(), { next: { revalidate: 60 } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    // tolera array o {results}
+    const items = Array.isArray(data) ? data : Array.isArray(data.results) ? data.results : [];
+    return items.map((t: Record<string, unknown>) => ({
+      id: (t.id as number) ?? (t.pk as number) ?? 0,
+      name: (t.name as string) ?? (t.author as string) ?? 'Customer',
+      quote: (t.quote as string) ?? (t.text as string) ?? '',
+      rating: (t.rating as number) ?? (t.stars as number) ?? undefined,
+      city: (t.city as string) ?? null,
+      geoarea: (t.geoarea as string) ?? null,
+    }));
+  } catch {
+    return [];
+  }
+}
 
 export async function fetchTestimonialsCompat(limit?: number): Promise<CompatTestimonial[]> {
   try {
@@ -164,7 +179,7 @@ export async function fetchTestimonialsCompat(limit?: number): Promise<CompatTes
         rating: (obj.rating as number) ?? (obj.stars as number) ?? undefined,
         city: (obj.city as string) ?? null,
         geoarea: (obj.geoarea as string) ?? null,
-      } as CompatTestimonial;
+      };
     });
   } catch {
     return [];

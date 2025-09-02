@@ -1,31 +1,37 @@
-import { fetchTestimonials } from '@/lib/cms';
-import type { Testimonial } from '@trades/schemas';
+import { fetchTestimonials, type Testimonial } from '@/lib/cms';
+
+export const dynamic = 'force-static';
 
 export default async function ReviewsPage() {
-  const testimonials = await fetchTestimonials();
+  const items = await fetchTestimonials();
 
   return (
-    <main className="container mx-auto px-4 py-12">
-      <h1 className="text-3xl font-bold mb-6">Customer Reviews</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {testimonials.map((testimonial: Testimonial) => (
-          <div key={testimonial.id} className="card">
-            <div className="flex items-center mb-4">
-              <div className="text-yellow-400 text-xl">
-                {'★'.repeat(testimonial.rating)}
-                {'☆'.repeat(5 - testimonial.rating)}
+    <section className="space-y-8">
+      <header className="mb-6">
+        <h1 className="text-3xl font-bold tracking-tight">Customer Reviews</h1>
+      </header>
+
+      {items.length === 0 ? (
+        <p className="text-slate-500">No reviews yet — add some testimonials in Wagtail.</p>
+      ) : (
+        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {items.map((t: Testimonial, index: number) => (
+            <li key={`review-${t.id}-${index}`} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <div className="mb-3 flex items-center gap-2">
+                <div className="h-8 w-8 shrink-0 rounded-full bg-sky-100" />
+                <div>
+                  <p className="font-medium">{t.name}</p>
+                  {t.city && <p className="text-xs text-slate-500">{t.city}</p>}
+                </div>
               </div>
-            </div>
-            <p className="opacity-90 mb-4">"{testimonial.text}"</p>
-            <p className="font-semibold">{testimonial.name}</p>
-            {testimonial.source && (
-              <a href={testimonial.source} className="link-brand text-sm">
-                View Source
-              </a>
-            )}
-          </div>
-        ))}
-      </div>
-    </main>
+              <p className="text-slate-700">{t.quote}</p>
+              {typeof t.rating === 'number' && (
+                <p className="mt-3 text-sm text-amber-600">Rating: {t.rating}/5</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

@@ -71,8 +71,8 @@ export default async function HomePage() {
           <p className="text-slate-500">No reviews yet.</p>
         ) : (
           <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {reviews.map((t: Testimonial) => (
-              <li key={t.id} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            {reviews.map((t: Testimonial, index: number) => (
+              <li key={`testimonial-${t.id}-${index}`} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <p className="font-medium">{t.name}</p>
                 <p className="mt-2 text-slate-700">{t.quote}</p>
               </li>

@@ -1,21 +1,37 @@
-import type { ReactNode } from 'react';
-import { Metadata } from 'next';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import AnnouncementBar from '@/components/AnnouncementBar';
-import StickyCTA from '@/components/StickyCTA';
+import type { Metadata } from 'next';
+import '../globals.css';
+import { AnnouncementBar } from '../../src/components/AnnouncementBar';
+import { Header } from '../../src/components/Header';
+import { Footer } from '../../src/components/Footer';
+import { StickyCTA } from '../../src/components/StickyCTA';
+import { getSiteConfig } from '../../src/lib/cms';
 
 export const metadata: Metadata = {
   title: 'Trades',
+  description: 'Professional trades services',
 };
-export default function MarketingLayout({ children }: { children: ReactNode }) {
+
+export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
+  // Obtener theme desde CMS
+  const cfg = await getSiteConfig().catch(() => null);
+
+  // Inyectar CSS vars de brand si existen
+  const style = cfg
+    ? {
+        ['--primary' as string]: cfg.primary || '#0ea5e9',
+        ['--accent' as string]: cfg.accent || '#16a34a',
+      }
+    : undefined;
+
   return (
-    <>
-      <AnnouncementBar />
-      <Header />
-      <main className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-8">{children}</main>
-      <Footer />
-      <StickyCTA />
-    </>
+    <html lang="en">
+      <body className="min-h-dvh bg-white text-neutral-900 antialiased" style={style}>
+        <AnnouncementBar />
+        <Header theme={{ phone: cfg?.phone, whatsapp: cfg?.whatsapp, gbp: cfg?.gbp_url }} />
+        <main>{children}</main>
+        <Footer theme={{ phone: cfg?.phone, whatsapp: cfg?.whatsapp, gbp: cfg?.gbp_url }} />
+        <StickyCTA />
+      </body>
+    </html>
   );
 }

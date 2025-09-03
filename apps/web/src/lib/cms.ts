@@ -64,7 +64,6 @@ export async function fetchServices(): Promise<Service[]> {
   }
 }
 
-
 export async function fetchProjects(): Promise<Project[]> {
   try {
     const json = await safeFetch<unknown>('projects/', { revalidate: 60 });
@@ -90,6 +89,9 @@ export type SiteConfig = {
   service_radius_km?: number;
   default_utm_source?: string;
   default_utm_campaign?: string;
+  primary?: string;
+  accent?: string;
+  whatsapp?: string;
 };
 
 export async function getSiteConfig(): Promise<SiteConfig> {

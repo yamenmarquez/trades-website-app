@@ -18,8 +18,8 @@ export default async function MarketingLayout({ children }: { children: React.Re
   // Inyectar CSS vars de brand si existen
   const style = cfg
     ? {
-        ['--primary' as string]: cfg.primary || '#0ea5e9',
-        ['--accent' as string]: cfg.accent || '#16a34a',
+        ['--color-primary' as string]: cfg.primary || '#0ea5e9',
+        ['--color-accent' as string]: cfg.accent || '#16a34a',
       }
     : undefined;
 

@@ -204,6 +204,38 @@ export function withCMS(url: string | null | undefined): string | undefined {
   if (/^https?:\/\//.test(url)) return url;
   return `${CMS}${url.startsWith('/') ? '' : '/'}${url}`;
 }
+
+// --- ServiceArea (marketing areas) ---
+export type ServiceArea = {
+  name: string;
+  slug: string;
+  city?: string;
+  state?: string;
+  zip_code?: string;
+  geo_slug?: string | null;
+  neighbors?: string[];
+};
+
+export async function fetchServiceAreas(): Promise<ServiceArea[]> {
+  try {
+    const res = await fetch(`${API_BASE}areas/`, { next: { revalidate: 300 } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const results = Array.isArray(data) ? data : (data.results ?? []);
+    return results.map((area: Record<string, unknown>) => ({
+      name: (area.name as string) || '',
+      slug: (area.slug as string) || '',
+      city: (area.city as string) || undefined,
+      state: (area.state as string) || undefined,
+      zip_code: (area.zip_code as string) || undefined,
+      geo_slug: (area.geo_slug as string) || null,
+      neighbors: Array.isArray(area.neighbors) ? (area.neighbors as string[]) : [],
+    }));
+  } catch {
+    return [];
+  }
+}
+
 // --- Local SEO ---
 export type GeoArea = {
   id: number;

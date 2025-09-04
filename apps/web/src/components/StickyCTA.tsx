@@ -1,4 +1,4 @@
-export default function StickyCTA({ phone }: { phone?: string }) {
+export function StickyCTA({ phone }: { phone?: string }) {
   return (
     <div className="md:hidden fixed bottom-4 inset-x-0 px-4 z-40">
       <div className="mx-auto max-w-md grid grid-cols-2 gap-3">
@@ -12,3 +12,5 @@ export default function StickyCTA({ phone }: { phone?: string }) {
     </div>
   );
 }
+
+export default StickyCTA;

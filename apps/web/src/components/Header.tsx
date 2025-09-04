@@ -78,3 +78,5 @@ export function Header({ theme }: { theme?: { phone?: string; whatsapp?: string;
     </header>
   );
 }
+
+export default Header;

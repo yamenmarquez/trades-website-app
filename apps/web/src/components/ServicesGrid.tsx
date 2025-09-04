@@ -8,7 +8,7 @@ export async function ServicesGrid({
 }: {
   services?: (Service & { description_html?: string })[];
 }) {
-  const list = services ?? ((await fetchServices()) as (Service & { description_html?: string })[]);
+  const list: (Service & { description_html?: string })[] = services ?? (await fetchServices());
   return (
     <section className="py-16">
       <div className="max-w-7xl mx-auto px-4">

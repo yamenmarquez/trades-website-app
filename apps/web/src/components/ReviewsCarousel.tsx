@@ -2,7 +2,7 @@ import { fetchTestimonials } from '@/lib/cms';
 import type { Testimonial } from '@trades/schemas';
 
 export async function ReviewsCarousel({ items }: { items?: Testimonial[] }) {
-  const list = items ?? ((await fetchTestimonials()) as Testimonial[]);
+  const list: Testimonial[] = items ?? (await fetchTestimonials());
   if (!list.length) return null;
   return (
     <section className="py-16 bg-slate-50">

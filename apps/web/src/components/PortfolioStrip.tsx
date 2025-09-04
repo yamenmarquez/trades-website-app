@@ -3,13 +3,19 @@ import { fetchProjects } from '@/lib/projects';
 import { CMS_URL } from '@/lib/cms';
 import type { Project } from '@trades/schemas';
 
-type Img = { url?: string; src?: string; alt?: string };
+interface ImageItem {
+  url?: string;
+  src?: string;
+  alt?: string;
+}
 
-export async function PortfolioStrip({ items }: { items?: Img[] | Project[] }) {
-  let imgs: Img[] = [];
+type Img = ImageItem;
+
+export async function PortfolioStrip({ items }: { items?: ImageItem[] | Project[] }) {
+  let imgs: ImageItem[] = [];
 
   if (items && items.length > 0) {
-    const first = items[0] as unknown as { images?: Img[] };
+    const first = items[0] as unknown as { images?: ImageItem[] };
     if (first && 'images' in first && Array.isArray(first.images)) {
       imgs = (items as Project[]).flatMap((p) => p.images || []);
     } else {

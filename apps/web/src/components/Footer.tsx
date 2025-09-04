@@ -10,7 +10,12 @@ export function Footer({ theme }: { theme?: { phone?: string; whatsapp?: string;
             </a>
           )}
           {theme?.whatsapp && (
-            <a className="hover:text-[var(--accent)]" href={theme.whatsapp} target="_blank">
+            <a
+              className="hover:text-[var(--accent)]"
+              href={theme.whatsapp}
+              target="_blank"
+              rel="noreferrer"
+            >
               WhatsApp
             </a>
           )}
@@ -19,7 +24,7 @@ export function Footer({ theme }: { theme?: { phone?: string; whatsapp?: string;
               className="hover:text-[var(--accent)]"
               href={theme.gbp}
               target="_blank"
-              rel="nofollow"
+              rel="noreferrer nofollow"
             >
               Google Business
             </a>

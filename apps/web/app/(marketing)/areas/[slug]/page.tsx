@@ -47,15 +47,14 @@ async function fetchArea(slug: string): Promise<ServiceArea | null> {
 async function fetchCoverage(geoSlug: string): Promise<Coverage[]> {
   try {
     // 🔗 MEJORADO: usar el filtro geo en lugar de city (sin ready para demo)
-    const res = await fetch(
-      `${CMS_URL}/api/coverage/?geo=${encodeURIComponent(geoSlug)}`,
-      { next: { revalidate: 120 } },
-    );
+    const res = await fetch(`${CMS_URL}/api/coverage/?geo=${encodeURIComponent(geoSlug)}`, {
+      next: { revalidate: 120 },
+    });
     if (!res.ok) return [];
     const data = await res.json();
     const results = Array.isArray(data) ? data : (data.results ?? []);
     // Filtrar solo los que tengan status ready
-    return results.filter((item: any) => item.status === 'ready');
+    return results.filter((item: Record<string, unknown>) => item.status === 'ready');
   } catch {
     return [];
   }
@@ -96,13 +95,13 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      
+
       {/* Header de área */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-neutral-900">{area.name}</h1>
         {(area.city || area.state) && (
           <p className="mt-2 text-lg text-neutral-600">
-            {[area.city, area.state].filter(Boolean).join(", ")}
+            {[area.city, area.state].filter(Boolean).join(', ')}
             {area.zip_code && ` ${area.zip_code}`}
           </p>
         )}
@@ -119,25 +118,23 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
             <p className="text-neutral-600 mb-6">
               Contact us to check availability for your specific needs in {area.name}.
             </p>
-            <Link
-              href="/contact"
-              className="btn btn-primary"
-            >
+            <Link href="/contact" className="btn btn-primary">
               Contact Us
             </Link>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {coverages.map((coverage, i) => (
-              <div key={`${coverage.service.slug}-${i}`} className="card hover:shadow-lg transition-shadow">
+              <div
+                key={`${coverage.service.slug}-${i}`}
+                className="card hover:shadow-lg transition-shadow"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <h3 className="text-lg font-semibold text-neutral-900 mb-2">
                       {coverage.service.name}
                     </h3>
-                    <p className="text-sm text-neutral-600 mb-4">
-                      Available in {area.name}
-                    </p>
+                    <p className="text-sm text-neutral-600 mb-4">Available in {area.name}</p>
                     <div className="flex gap-3">
                       <Link
                         href={`/services/${coverage.service.slug}/${area.geo_slug}`}
@@ -180,7 +177,7 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
                 href={`/areas/${neighborSlug}`}
                 className="inline-block px-4 py-2 rounded-full border border-neutral-200 text-neutral-700 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors text-sm"
               >
-                {neighborSlug.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase())}
+                {neighborSlug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
               </Link>
             ))}
           </div>
@@ -189,12 +186,17 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
 
       {/* Navegación de regreso */}
       <div className="border-t border-neutral-200 pt-6">
-        <Link 
-          href="/areas" 
+        <Link
+          href="/areas"
           className="inline-flex items-center text-[var(--color-primary)] hover:underline"
         >
           <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
           </svg>
           Back to all areas
         </Link>

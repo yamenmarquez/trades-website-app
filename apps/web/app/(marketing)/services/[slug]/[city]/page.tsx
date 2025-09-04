@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { fetchCoverage, fetchCoverageDetail, getSiteConfig } from '@/lib/cms';
+import { fetchCoverage, fetchCoverageDetail } from '@/lib/cms';
 import { notFound } from 'next/navigation';
 import { absoluteUrl, ldBreadcrumb, ldService } from '@/lib/seo';
 import LocalProof from '@/components/LocalProof';
@@ -36,8 +36,8 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function Page({ params }: { params: Promise<Params> }) {
   const { slug, city } = await params;
-  const cfg = await getSiteConfig();
   // Temporarily disabled for testing:
+  // const cfg = await getSiteConfig();
   // if (!cfg.local_seo_enabled) {
   //   notFound();
   // }

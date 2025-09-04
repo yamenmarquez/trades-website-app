@@ -109,6 +109,9 @@ export async function getSiteConfig(): Promise<SiteConfig> {
       service_radius_km: json?.service_radius_km,
       default_utm_source: json?.default_utm_source,
       default_utm_campaign: json?.default_utm_campaign,
+      primary: json?.primary,
+      accent: json?.accent,
+      whatsapp: json?.whatsapp,
     };
   } catch {
     return {};

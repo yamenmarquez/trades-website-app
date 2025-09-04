@@ -10,6 +10,7 @@ from .views import (
     ProjectViewSet,
     TestimonialViewSet,
     ServiceAreaViewSet,
+    LeadViewSet,
 )
 
 # Optional local SEO viewsets
@@ -60,6 +61,7 @@ router.register(r"services", ServiceViewSet, basename="services")
 router.register(r"projects", ProjectViewSet, basename="projects")
 router.register(r"testimonials", TestimonialViewSet, basename="testimonials")
 router.register(r"areas", ServiceAreaViewSet, basename="areas")
+router.register(r"leads", LeadViewSet, basename="leads")
 if HAS_LOCAL and GeoAreaViewSet is not None:
     router.register(r"geoareas", GeoAreaViewSet, basename="geoareas")
 if HAS_LOCAL and ServiceCoverageViewSet is not None:

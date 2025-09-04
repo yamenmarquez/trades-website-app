@@ -29,5 +29,3 @@ export function Footer({ theme }: { theme?: { phone?: string; whatsapp?: string;
     </footer>
   );
 }
-
-export default Footer;

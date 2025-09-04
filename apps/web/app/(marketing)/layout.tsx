@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import '../globals.css';
-import AnnouncementBar from '../../src/components/AnnouncementBar';
-import Header from '../../src/components/Header';
-import Footer from '../../src/components/Footer';
-import StickyCTA from '../../src/components/StickyCTA';
+import { AnnouncementBar } from '../../src/components/AnnouncementBar';
+import { Header } from '../../src/components/Header';
+import { Footer } from '../../src/components/Footer';
+import { StickyCTA } from '../../src/components/StickyCTA';
 import { getSiteConfig } from '../../src/lib/cms';
 
 export const metadata: Metadata = {

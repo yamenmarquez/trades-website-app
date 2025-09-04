@@ -9,12 +9,24 @@ import type { GeoArea, CompatTestimonial } from '@/lib/cms';
 export const dynamic = 'force-static';
 
 export default async function HomePage() {
-  const [services, projects, areas, reviews] = await Promise.all([
+  const [services, projects, geoAreas, reviews] = await Promise.all([
     fetchServices?.() ?? [],
     fetchProjects?.() ?? [],
     fetchGeoAreas?.({ type: 'city' }) ?? [],
     fetchTestimonials(6),
   ]);
+
+  // Fallback: if no geo areas, create mock areas or use service areas
+  const areas =
+    geoAreas.length > 0
+      ? geoAreas
+      : [
+          { id: 1, slug: 'downtown', name: 'Downtown' },
+          { id: 2, slug: 'north-side', name: 'North Side' },
+          { id: 3, slug: 'south-side', name: 'South Side' },
+          { id: 4, slug: 'east-end', name: 'East End' },
+          { id: 5, slug: 'west-end', name: 'West End' },
+        ];
 
   return (
     <div className="space-y-16">
@@ -40,7 +52,7 @@ export default async function HomePage() {
       </section>
 
       {/* Services */}
-      <section className="space-y-6">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
         <h2 className="text-2xl font-semibold">Our Services</h2>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {(services as Service[]).map((s) => (
@@ -65,7 +77,7 @@ export default async function HomePage() {
       </section>
 
       {/* Reviews */}
-      <section className="space-y-6">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
         <h2 className="text-2xl font-semibold">What Our Customers Say</h2>
         {reviews.length === 0 ? (
           <p className="text-slate-500">No reviews yet.</p>
@@ -85,7 +97,7 @@ export default async function HomePage() {
       </section>
 
       {/* Portfolio */}
-      <section className="space-y-6">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
         <h2 className="text-2xl font-semibold">Our Work</h2>
         <MasonryWithLightbox
           items={
@@ -102,7 +114,7 @@ export default async function HomePage() {
       </section>
 
       {/* Areas */}
-      <section className="space-y-6">
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
         <h2 className="text-2xl font-semibold">Service Areas</h2>
         <div className="flex flex-wrap gap-3">
           {Array.isArray(areas) && areas.length > 0 ? (

@@ -4,7 +4,7 @@ import { fetchTestimonials } from '@/lib/cms';
 import Prose from '@/components/Prose';
 import MasonryWithLightbox from '@/components/MasonryWithLightbox';
 import type { Service, Project } from '@trades/schemas';
-import type { GeoArea, Testimonial } from '@/lib/cms';
+import type { GeoArea, CompatTestimonial } from '@/lib/cms';
 
 export const dynamic = 'force-static';
 
@@ -46,8 +46,8 @@ export default async function HomePage() {
           {(services as Service[]).map((s) => (
             <article key={s.id} className="card">
               <h3 className="font-semibold">{s.name}</h3>
-              {s.description_html && (
-                <Prose html={s.description_html} className="line-clamp-3 mt-2 text-sm" />
+              {s.description && (
+                <Prose html={s.description} className="line-clamp-3 mt-2 text-sm" />
               )}
               <div className="mt-4">
                 <Link href={`/services/${s.slug}`} className="btn btn-primary">
@@ -71,8 +71,11 @@ export default async function HomePage() {
           <p className="text-slate-500">No reviews yet.</p>
         ) : (
           <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {reviews.map((t: Testimonial, index: number) => (
-              <li key={`testimonial-${t.id}-${index}`} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            {reviews.map((t: CompatTestimonial, index: number) => (
+              <li
+                key={`testimonial-${t.id}-${index}`}
+                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+              >
                 <p className="font-medium">{t.name}</p>
                 <p className="mt-2 text-slate-700">{t.quote}</p>
               </li>
@@ -85,12 +88,16 @@ export default async function HomePage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold">Our Work</h2>
         <MasonryWithLightbox
-          items={Array.isArray(projects) ? projects.flatMap((p: Project) =>
-            (p.images || []).map((img) => ({
-              url: img.url,
-              alt: img.alt || p.title,
-            })),
-          ) : []}
+          items={
+            Array.isArray(projects)
+              ? projects.flatMap((p: Project) =>
+                  (p.images || []).map((img) => ({
+                    url: img.url,
+                    alt: img.alt || p.title,
+                  })),
+                )
+              : []
+          }
         />
       </section>
 
@@ -98,15 +105,17 @@ export default async function HomePage() {
       <section className="space-y-6">
         <h2 className="text-2xl font-semibold">Service Areas</h2>
         <div className="flex flex-wrap gap-3">
-          {Array.isArray(areas) && areas.length > 0 ? areas.map((a: GeoArea) => (
-            <Link
-              key={a.slug || a.id}
-              href={`/areas/${a.slug || ''}`}
-              className="rounded-full border border-slate-200 px-4 py-2 shadow-sm hover:bg-slate-50"
-            >
-              {a.name || a.slug}
-            </Link>
-          )) : (
+          {Array.isArray(areas) && areas.length > 0 ? (
+            areas.map((a: GeoArea) => (
+              <Link
+                key={a.slug || a.id}
+                href={`/areas/${a.slug || ''}`}
+                className="rounded-full border border-slate-200 px-4 py-2 shadow-sm hover:bg-slate-50"
+              >
+                {a.name || a.slug}
+              </Link>
+            ))
+          ) : (
             <p className="text-slate-500">No service areas available.</p>
           )}
         </div>
@@ -117,7 +126,10 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-semibold">Ready to Start Your Project?</h2>
           <p className="mt-2 opacity-90">Contact us today for a free consultation and quote.</p>
-          <Link href="/contact" className="mt-6 inline-block rounded-xl bg-white px-4 py-2 text-sky-700 shadow">
+          <Link
+            href="/contact"
+            className="mt-6 inline-block rounded-xl bg-white px-4 py-2 text-sky-700 shadow"
+          >
             Get Started
           </Link>
         </div>

@@ -136,7 +136,7 @@ export type CompatTestimonial = {
   geoarea?: string | null;
 };
 
-export async function fetchTestimonials(limit?: number): Promise<Testimonial[]> {
+export async function fetchTestimonials(limit?: number): Promise<CompatTestimonial[]> {
   try {
     const url = new URL('/api/testimonials/', CMS);
     if (limit) url.searchParams.set('limit', String(limit));

@@ -1,37 +1,51 @@
-import { fetchTestimonials, type Testimonial } from '@/lib/cms';
+import { fetchTestimonials, type CompatTestimonial } from '@/lib/cms';
 
-export const dynamic = 'force-static';
+function Stars({ value = 5 }: { value?: number }) {
+  const v = Math.max(0, Math.min(5, Math.round(value || 0)));
+  return (
+    <div className="flex gap-1" aria-label={`${v} out of 5 stars`}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <svg
+          key={i}
+          className={`w-4 h-4 ${i < v ? 'text-yellow-500' : 'text-neutral-300'}`}
+          viewBox="0 0 20 20"
+          fill="currentColor"
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.802 2.036a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118L10 13.347l-2.985 2.126c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L3.38 8.72c-.783-.57-.38-1.81.588-1.81H7.43a1 1 0 00.95-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </div>
+  );
+}
 
 export default async function ReviewsPage() {
-  const items = await fetchTestimonials();
+  const items: CompatTestimonial[] = await fetchTestimonials();
 
   return (
-    <section className="space-y-8">
-      <header className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Customer Reviews</h1>
-      </header>
+    <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+      <div className="text-center mb-10">
+        <h1 className="text-3xl font-bold">Customer Reviews</h1>
+        <p className="text-neutral-600 mt-2">What customers say about our work.</p>
+      </div>
 
       {items.length === 0 ? (
-        <p className="text-slate-500">No reviews yet — add some testimonials in Wagtail.</p>
+        <div className="text-center py-16">
+          <p className="text-neutral-500">No reviews yet.</p>
+        </div>
       ) : (
-        <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((t: Testimonial, index: number) => (
-            <li key={`review-${t.id}-${index}`} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <div className="mb-3 flex items-center gap-2">
-                <div className="h-8 w-8 shrink-0 rounded-full bg-sky-100" />
-                <div>
-                  <p className="font-medium">{t.name}</p>
-                  {t.city && <p className="text-xs text-slate-500">{t.city}</p>}
-                </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {items.map((t) => (
+            <article key={t.id} className="card">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold">{t.name || 'Customer'}</h3>
+                <Stars value={t.rating ?? 5} />
               </div>
-              <p className="text-slate-700">{t.quote}</p>
-              {typeof t.rating === 'number' && (
-                <p className="mt-3 text-sm text-amber-600">Rating: {t.rating}/5</p>
-              )}
-            </li>
+              <p className="text-sm text-neutral-700">{t.quote}</p>
+              {t.geoarea && <p className="text-xs text-neutral-500 mt-3">Area: {t.geoarea}</p>}
+            </article>
           ))}
-        </ul>
+        </div>
       )}
-    </section>
+    </main>
   );
 }

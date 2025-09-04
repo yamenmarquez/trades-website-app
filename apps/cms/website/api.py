@@ -11,6 +11,7 @@ from .views import (
     TestimonialViewSet,
     ServiceAreaViewSet,
     LeadViewSet,
+    config_view,
 )
 
 # Optional local SEO viewsets
@@ -70,5 +71,6 @@ router.register(r"themes", ThemeAliasViewSet, basename="themes")
 
 
 urlpatterns = [
+    path("config/", config_view, name="config"),
     path("", include(router.urls)),
 ]

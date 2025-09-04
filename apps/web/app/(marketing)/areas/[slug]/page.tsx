@@ -81,6 +81,12 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
   // 🔗 MEJORADO: solo buscar cobertura si hay geo_slug enlazado
   const coverages = area.geo_slug ? await fetchCoverage(area.geo_slug) : [];
 
+  // Fetch all areas to create neighbor slug mapping
+  const allAreas = await fetchAreas();
+  const areaSlugMap = new Map(
+    allAreas.map((a) => [a.city?.toLowerCase() || a.name.toLowerCase(), a.slug]),
+  );
+
   // JSON-LD (Service + areaServed)
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -171,15 +177,23 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-6 text-neutral-900">Nearby Areas</h2>
           <div className="flex flex-wrap gap-3">
-            {area.neighbors.map((neighborSlug) => (
-              <Link
-                key={neighborSlug}
-                href={`/areas/${neighborSlug}`}
-                className="inline-block px-4 py-2 rounded-full border border-neutral-200 text-neutral-700 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors text-sm"
-              >
-                {neighborSlug.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-              </Link>
-            ))}
+            {area.neighbors.map((neighborName) => {
+              // Map short neighbor name to full slug
+              const fullSlug = areaSlugMap.get(neighborName.toLowerCase()) || neighborName;
+              const displayName = neighborName
+                .replace(/-/g, ' ')
+                .replace(/\b\w/g, (l) => l.toUpperCase());
+
+              return (
+                <Link
+                  key={neighborName}
+                  href={`/areas/${fullSlug}`}
+                  className="inline-block px-4 py-2 rounded-full border border-neutral-200 text-neutral-700 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors text-sm"
+                >
+                  {displayName}
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}

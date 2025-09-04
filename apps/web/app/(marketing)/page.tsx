@@ -161,27 +161,172 @@ export default async function HomePage() {
 
       {/* Service Areas */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
-        <h2 className="text-2xl font-semibold">Service Areas</h2>
-        <div className="flex flex-wrap gap-3">
-          {Array.isArray(serviceAreas) && serviceAreas.length > 0 ? (
-            serviceAreas.map((area: ServiceArea) => (
-              <Link
-                key={area.slug}
-                href={`/areas/${area.slug}`}
-                className="rounded-full border border-slate-200 px-4 py-2 shadow-sm hover:bg-slate-50 hover:border-primary transition-colors"
-              >
-                {area.name}
-              </Link>
-            ))
-          ) : (
-            <div className="text-center py-8 w-full">
-              <p className="text-slate-500 mb-4">We're expanding our service areas.</p>
-              <Link href="/contact" className="btn btn-primary">
-                Contact us to check availability
-              </Link>
-            </div>
-          )}
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold">Our Service Areas</h2>
+          <p className="mt-2 text-neutral-600">
+            Professional trades services across multiple locations
+          </p>
         </div>
+
+        {Array.isArray(serviceAreas) && serviceAreas.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {serviceAreas.map((area: ServiceArea) => {
+              // Get service count for this area from coverage data
+              const areaServices = coverage.filter((cov) => cov.geo.slug === area.geo_slug);
+              const serviceCount = areaServices.length;
+              const hasReviews = areaServices.some((cov) => cov.reviews_summary);
+              const avgRating = hasReviews
+                ? areaServices
+                    .filter((cov) => cov.reviews_summary)
+                    .reduce((sum, cov) => sum + (cov.reviews_summary?.avg || 0), 0) /
+                  areaServices.filter((cov) => cov.reviews_summary).length
+                : null;
+
+              return (
+                <Link
+                  key={area.slug}
+                  href={`/areas/${area.slug}`}
+                  className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-neutral-50 border border-neutral-200 p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:scale-[1.02] hover:border-primary/20"
+                >
+                  {/* Location Icon */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <svg className="w-6 h-6 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                          fillRule="evenodd"
+                          d="M11.54 22.351l.07.04.028.016a.76.76 0 00.723 0l.028-.015.071-.041a16.975 16.975 0 001.144-.742 19.58 19.58 0 002.683-2.282c1.944-1.99 3.963-4.98 3.963-8.827a8.25 8.25 0 00-16.5 0c0 3.846 2.02 6.837 3.963 8.827a19.58 19.58 0 002.682 2.282 16.975 16.975 0 001.145.742zM12 13.5a3 3 0 100-6 3 3 0 000 6z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </div>
+
+                    {/* State Badge */}
+                    {area.state && (
+                      <span className="inline-flex items-center rounded-full bg-neutral-100 px-2.5 py-0.5 text-xs font-medium text-neutral-700 group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                        {area.state}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Area Info */}
+                  <div className="mb-4">
+                    <h3 className="text-lg font-semibold text-neutral-900 group-hover:text-primary transition-colors">
+                      {area.city || area.name}
+                    </h3>
+                    {area.city && area.city !== area.name && (
+                      <p className="text-sm text-neutral-500 mt-1">{area.name}</p>
+                    )}
+                  </div>
+
+                  {/* Services Stats */}
+                  <div className="space-y-3">
+                    {serviceCount > 0 && (
+                      <div className="flex items-center text-sm text-neutral-600">
+                        <svg
+                          className="w-4 h-4 mr-2 text-neutral-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 8h1m-1-4h1m4 4h1m-1-4h1"
+                          />
+                        </svg>
+                        <span>
+                          {serviceCount} service{serviceCount !== 1 ? 's' : ''} available
+                        </span>
+                      </div>
+                    )}
+
+                    {avgRating && (
+                      <div className="flex items-center text-sm">
+                        <svg
+                          className="w-4 h-4 mr-1 text-amber-400"
+                          fill="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            fillRule="evenodd"
+                            d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                        <span className="text-amber-600 font-medium">{avgRating.toFixed(1)}</span>
+                        <span className="text-neutral-500 ml-1">rating</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Neighbors hint */}
+                  {Array.isArray(area.neighbors) && area.neighbors.length > 0 && (
+                    <div className="mt-4 pt-4 border-t border-neutral-100">
+                      <p className="text-xs text-neutral-500">
+                        Also serving{' '}
+                        {area.neighbors
+                          .slice(0, 2)
+                          .map((n) => n.replace(/-/g, ' '))
+                          .join(', ')}
+                        {area.neighbors.length > 2 && ` +${area.neighbors.length - 2} more`}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Hover Arrow */}
+                  <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg
+                      className="w-5 h-5 text-primary"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M17 8l4 4m0 0l-4 4m4-4H3"
+                      />
+                    </svg>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-center py-12 bg-gradient-to-r from-neutral-50 to-neutral-100 rounded-2xl border border-neutral-200">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+              <svg
+                className="w-8 h-8 text-primary"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-neutral-900 mb-2">Expanding Our Reach</h3>
+            <p className="text-neutral-600 mb-6 max-w-md mx-auto">
+              We're constantly growing to serve new areas. Contact us to check availability in your
+              location.
+            </p>
+            <Link href="/contact" className="btn btn-primary">
+              Check Availability
+            </Link>
+          </div>
+        )}
       </section>
 
       {/* CTA */}

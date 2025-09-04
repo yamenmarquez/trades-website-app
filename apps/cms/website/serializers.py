@@ -180,9 +180,22 @@ class TestimonialSerializer(serializers.ModelSerializer):
 
 
 class ServiceAreaSerializer(serializers.ModelSerializer):
+    geo_slug = serializers.SerializerMethodField()
+    neighbors = serializers.SerializerMethodField()
+
     class Meta:
         model = ServiceArea
-        fields = ['name', 'slug', 'city', 'state', 'zip_code']
+        fields = ['name', 'slug', 'city', 'state', 'zip_code', 'geo_slug', 'neighbors']
+
+    def get_geo_slug(self, obj):
+        """Devuelve el slug de la GeoArea enlazada si existe"""
+        return getattr(obj.geo, 'slug', None)
+
+    def get_neighbors(self, obj):
+        """Devuelve slugs de áreas vecinas si existe geo enlazada"""
+        if hasattr(obj, 'geo') and obj.geo:
+            return list(obj.geo.neighbors.values_list('slug', flat=True))
+        return []
 
 
 class ProjectSerializer(serializers.ModelSerializer):

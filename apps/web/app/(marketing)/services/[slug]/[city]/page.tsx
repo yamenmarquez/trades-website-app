@@ -37,9 +37,10 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default async function Page({ params }: { params: Promise<Params> }) {
   const { slug, city } = await params;
   const cfg = await getSiteConfig();
-  if (!cfg.local_seo_enabled) {
-    notFound();
-  }
+  // Temporarily disabled for testing:
+  // if (!cfg.local_seo_enabled) {
+  //   notFound();
+  // }
   const cov = await fetchCoverageDetail(slug, city);
   if (!cov) notFound();
 

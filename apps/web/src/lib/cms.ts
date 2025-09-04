@@ -219,13 +219,23 @@ export async function fetchGeoAreas(params?: {
   type?: 'city' | 'neighborhood';
   parent?: string;
 }): Promise<GeoArea[]> {
-  const qs = new URLSearchParams();
-  if (params?.type) qs.set('type', params.type);
-  if (params?.parent) qs.set('parent', params.parent);
-  const json = await safeFetch<GeoArea[]>(`geoareas/${qs.toString() ? `?${qs}` : ''}`, {
-    revalidate: 60,
-  });
-  return json;
+  try {
+    const qs = new URLSearchParams();
+    if (params?.type) qs.set('type', params.type);
+    if (params?.parent) qs.set('parent', params.parent);
+    const data = await safeFetch<unknown>(`geoareas/${qs.toString() ? `?${qs}` : ''}`, {
+      revalidate: 60,
+    });
+    // Handle both array and paginated response formats
+    const list: unknown = Array.isArray(data)
+      ? data
+      : typeof data === 'object' && data && 'results' in data
+        ? (data as { results: unknown }).results
+        : [];
+    return (Array.isArray(list) ? list : []) as GeoArea[];
+  } catch {
+    return [];
+  }
 }
 
 export type Coverage = {

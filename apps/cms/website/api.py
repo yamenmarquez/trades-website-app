@@ -37,3 +37,10 @@ if HAS_LOCAL and ServiceCoverageViewSet is not None:
 urlpatterns = [
     path("", include(router.urls)),
 ]
+
+# Add coverage detail endpoint if ServiceCoverage exists
+if HAS_LOCAL:
+    from .views import coverage_detail
+    urlpatterns.append(
+        path("coverage/<str:service>/<str:city>/", coverage_detail, name="coverage-detail")
+    )

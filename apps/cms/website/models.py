@@ -63,6 +63,13 @@ class ServiceArea(models.Model):
     city = models.CharField(max_length=120, blank=True)
     state = models.CharField(max_length=80, blank=True)
     zip_code = models.CharField(max_length=20, blank=True)
+    
+    # 🔗 NUEVO: enlace opcional a la GeoArea "real" para SEO
+    geo = models.ForeignKey(
+        'website.GeoArea', null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="service_areas",
+        help_text="Link to the real SEO geo area for service coverage"
+    )
 
     panels = [
         FieldPanel('name'),
@@ -70,6 +77,8 @@ class ServiceArea(models.Model):
         FieldPanel('city'),
         FieldPanel('state'),
         FieldPanel('zip_code'),
+        # 🔗 NUEVO: permite seleccionar la ciudad SEO real
+        FieldPanel('geo'),
     ]
 
     def save(self, *args, **kwargs):

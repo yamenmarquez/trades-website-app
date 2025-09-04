@@ -83,9 +83,32 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
 
   // Fetch all areas to create neighbor slug mapping
   const allAreas = await fetchAreas();
-  const areaSlugMap = new Map(
-    allAreas.map((a) => [a.city?.toLowerCase() || a.name.toLowerCase(), a.slug]),
-  );
+  const areaSlugMap = new Map();
+
+  // Create multiple mappings for better neighbor matching
+  allAreas.forEach((a) => {
+    const cityName = a.city || a.name;
+    const lowerCityName = cityName.toLowerCase();
+
+    // Map by city name only (e.g., "houston" -> "houston-tx")
+    areaSlugMap.set(lowerCityName, a.slug);
+
+    // Map by full name (e.g., "houston, tx" -> "houston-tx")
+    areaSlugMap.set(a.name.toLowerCase(), a.slug);
+
+    // Map by simplified city name without state (e.g., "houston" -> "houston-tx")
+    const simpleName = cityName.split(',')[0].trim().toLowerCase();
+    areaSlugMap.set(simpleName, a.slug);
+
+    // Map by geo_slug if available (e.g., "houston" -> "houston-tx")
+    if (a.geo_slug) {
+      areaSlugMap.set(a.geo_slug.toLowerCase(), a.slug);
+    }
+
+    // Map by space-normalized name
+    const spaceName = cityName.toLowerCase().replace(/\s+/g, ' ').trim();
+    areaSlugMap.set(spaceName, a.slug);
+  });
 
   // JSON-LD (Service + areaServed)
   const jsonLd = {
@@ -177,23 +200,44 @@ export default async function AreaPage({ params }: { params: Promise<{ slug: str
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-6 text-neutral-900">Nearby Areas</h2>
           <div className="flex flex-wrap gap-3">
-            {area.neighbors.map((neighborName) => {
-              // Map short neighbor name to full slug
-              const fullSlug = areaSlugMap.get(neighborName.toLowerCase()) || neighborName;
-              const displayName = neighborName
-                .replace(/-/g, ' ')
-                .replace(/\b\w/g, (l) => l.toUpperCase());
+            {area.neighbors
+              .map((neighborName) => {
+                // Try multiple mapping strategies to find the right slug
+                let fullSlug = areaSlugMap.get(neighborName.toLowerCase());
 
-              return (
-                <Link
-                  key={neighborName}
-                  href={`/areas/${fullSlug}`}
-                  className="inline-block px-4 py-2 rounded-full border border-neutral-200 text-neutral-700 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors text-sm"
-                >
-                  {displayName}
-                </Link>
-              );
-            })}
+                if (!fullSlug) {
+                  // Try with spaces normalized
+                  const spaceNormalized = neighborName.toLowerCase().replace(/\s+/g, ' ').trim();
+                  fullSlug = areaSlugMap.get(spaceNormalized);
+                }
+
+                if (!fullSlug) {
+                  // Try simplified name (remove common suffixes)
+                  const simplified = neighborName.split(',')[0].trim().toLowerCase();
+                  fullSlug = areaSlugMap.get(simplified);
+                }
+
+                // Only render link if we found a valid area slug
+                if (!fullSlug) {
+                  // Skip this neighbor if no matching area exists
+                  return null;
+                }
+
+                const displayName = neighborName
+                  .replace(/-/g, ' ')
+                  .replace(/\b\w/g, (l) => l.toUpperCase());
+
+                return (
+                  <Link
+                    key={neighborName}
+                    href={`/areas/${fullSlug}`}
+                    className="inline-block px-4 py-2 rounded-full border border-neutral-200 text-neutral-700 hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-colors text-sm"
+                  >
+                    {displayName}
+                  </Link>
+                );
+              })
+              .filter(Boolean)}
           </div>
         </section>
       )}

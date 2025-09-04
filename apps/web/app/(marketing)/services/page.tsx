@@ -32,10 +32,7 @@ export default async function ServicesIndex() {
                     .join(', ')}
                 </div>
               ) : null}
-              <Link
-                className="inline-block mt-4 px-3 py-2 rounded bg-sky-600 text-white text-sm"
-                href={`/contact`}
-              >
+              <Link className="btn btn-primary mt-4 text-sm" href={`/contact`}>
                 Get Quote
               </Link>
             </div>

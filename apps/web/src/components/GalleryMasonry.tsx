@@ -12,26 +12,30 @@ type Props = { items: Item[]; onOpen?: (index: number) => void };
 
 export default function GalleryMasonry({ items, onOpen }: Props) {
   const handle = useCallback((i: number) => onOpen?.(i), [onOpen]);
+
   return (
-    <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 [column-fill:_balance]">
+    <div className="flex flex-wrap justify-center gap-4 max-w-6xl mx-auto">
       {items.map((it, i) => (
-        <button
+        <div
           key={i}
-          className="mb-4 w-full inline-block rounded-[var(--radius)] overflow-hidden focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-          onClick={() => handle(i)}
-          aria-label={it.alt || 'Open image'}
-          style={{ breakInside: 'avoid' }}
+          className="flex-shrink-0 w-full sm:w-[calc(50%-0.5rem)] md:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)]"
         >
-          <Image
-            src={it.url}
-            alt={it.alt ?? ''}
-            width={1200}
-            height={800}
-            className="w-full h-auto align-top block"
-            unoptimized={IS_DEV}
-            sizes="(min-width:1280px) 33vw, (min-width:768px) 50vw, 100vw"
-          />
-        </button>
+          <button
+            className="block w-full rounded-lg overflow-hidden shadow-sm hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition-all duration-200 hover:scale-[1.02]"
+            onClick={() => handle(i)}
+            aria-label={it.alt || 'Open image'}
+          >
+            <Image
+              src={it.url}
+              alt={it.alt ?? ''}
+              width={400}
+              height={300}
+              className="w-full h-auto object-cover rounded-lg"
+              unoptimized={IS_DEV}
+              sizes="(min-width:1024px) 25vw, (min-width:768px) 33vw, (min-width:640px) 50vw, 100vw"
+            />
+          </button>
+        </div>
       ))}
     </div>
   );

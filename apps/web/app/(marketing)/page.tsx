@@ -31,20 +31,26 @@ export default async function HomePage() {
   return (
     <div className="space-y-16">
       {/* Hero */}
-      <section className="rounded-3xl bg-gradient-to-r from-sky-500 to-emerald-500 py-16 text-white">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
+      <section className="rounded-3xl gradient-brand py-20 text-white">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
             Professional Trades Services
           </h1>
-          <p className="mt-3 max-w-2xl text-lg opacity-90">
+          <p className="mx-auto mt-6 max-w-3xl text-xl opacity-90">
             Quality craftsmanship, reliable service, and exceptional results for all your project
             needs.
           </p>
-          <div className="mt-6 flex gap-3">
-            <Link href="/contact" className="rounded-xl bg-white px-4 py-2 text-sky-700 shadow">
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/contact"
+              className="btn btn-contrast shadow-lg hover:shadow-xl transition-shadow"
+            >
               Get Free Quote
             </Link>
-            <Link href="/portfolio" className="rounded-xl border border-white/80 px-4 py-2">
+            <Link
+              href="/portfolio"
+              className="rounded-xl border-2 border-white/80 px-6 py-3 hover:bg-white/10 transition-colors font-semibold"
+            >
               View Our Work
             </Link>
           </div>
@@ -70,7 +76,7 @@ export default async function HomePage() {
           ))}
         </div>
         <div>
-          <Link href="/services" className="btn btn-outline">
+          <Link href="/services" className="btn btn-outline-primary">
             View All Services
           </Link>
         </div>
@@ -134,14 +140,11 @@ export default async function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="rounded-3xl bg-sky-600 py-12 text-white">
+      <section className="rounded-3xl bg-primary py-12 text-white">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-semibold">Ready to Start Your Project?</h2>
           <p className="mt-2 opacity-90">Contact us today for a free consultation and quote.</p>
-          <Link
-            href="/contact"
-            className="mt-6 inline-block rounded-xl bg-white px-4 py-2 text-sky-700 shadow"
-          >
+          <Link href="/contact" className="btn btn-contrast mt-6 shadow">
             Get Started
           </Link>
         </div>

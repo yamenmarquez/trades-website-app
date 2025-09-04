@@ -96,8 +96,15 @@ export type SiteConfig = {
 
 export async function getSiteConfig(): Promise<SiteConfig> {
   try {
-    const res = await fetch(`${API_BASE}config/`, { cache: 'no-store' });
-    if (!res.ok) throw new Error('config failed');
+    const res = await fetch(`${API_BASE}config/`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
+      },
+    });
+    if (!res.ok) throw new Error(`config failed with status ${res.status}`);
     const json: Partial<SiteConfig> = await res.json();
     return {
       phone: json?.phone,
@@ -113,7 +120,8 @@ export async function getSiteConfig(): Promise<SiteConfig> {
       accent: json?.accent,
       whatsapp: json?.whatsapp,
     };
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch site config:', error);
     return {};
   }
 }

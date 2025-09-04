@@ -21,7 +21,7 @@ export function Header({ theme }: { theme?: { phone?: string; whatsapp?: string;
 
         <nav className="hidden md:flex items-center gap-6">
           {NAV.map((n) => (
-            <Link key={n.href} href={n.href} className="hover:text-[var(--accent)]">
+            <Link key={n.href} href={n.href} className="hover:text-[var(--color-primary)]">
               {n.label}
             </Link>
           ))}
@@ -29,7 +29,7 @@ export function Header({ theme }: { theme?: { phone?: string; whatsapp?: string;
           {theme?.phone && (
             <a
               href={`tel:${theme.phone}`}
-              className="text-sm text-neutral-700 hover:text-[var(--accent)]"
+              className="text-sm text-neutral-700 hover:text-[var(--color-primary)]"
             >
               {theme.phone}
             </a>
@@ -37,7 +37,7 @@ export function Header({ theme }: { theme?: { phone?: string; whatsapp?: string;
 
           <Link
             href="/contact"
-            className="inline-flex items-center rounded-full bg-[var(--primary)] px-4 py-2 text-white hover:opacity-90"
+            className="inline-flex items-center rounded-full bg-[var(--color-primary)] px-4 py-2 text-white hover:opacity-90"
           >
             Contact
           </Link>
@@ -68,7 +68,7 @@ export function Header({ theme }: { theme?: { phone?: string; whatsapp?: string;
             <Link
               href="/contact"
               onClick={() => setOpen(false)}
-              className="inline-flex w-fit items-center rounded-full bg-[var(--primary)] px-4 py-2 text-white hover:opacity-90"
+              className="inline-flex w-fit items-center rounded-full bg-[var(--color-primary)] px-4 py-2 text-white hover:opacity-90"
             >
               Contact
             </Link>

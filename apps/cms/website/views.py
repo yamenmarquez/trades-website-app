@@ -88,6 +88,17 @@ class LeadViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
     throttle_classes = [LeadsThrottle]
 
 
+class ConfigViewSet(viewsets.ViewSet):
+    """
+    Site configuration including theme colors, contact info, etc.
+    """
+    permission_classes = [PublicReadOnly]
+    
+    def list(self, request):
+        site = WagtailSite.find_for_request(request) or WagtailSite.objects.first()
+        data = ConfigSerializer.from_site(site)
+        return Response(data)
+
 @api_view(['GET'])
 @permission_classes([PublicReadOnly])
 def config_view(request):

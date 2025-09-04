@@ -6,6 +6,7 @@ from .views import (
     TestimonialViewSet,
     ServiceAreaViewSet,
     LeadViewSet,
+    ConfigViewSet,
     config_view,
 )
 
@@ -26,6 +27,7 @@ router.register(r"projects", ProjectViewSet, basename="projects")
 router.register(r"testimonials", TestimonialViewSet, basename="testimonials")
 router.register(r"areas", ServiceAreaViewSet, basename="areas")
 router.register(r"leads", LeadViewSet, basename="leads")
+router.register(r"config", ConfigViewSet, basename="config")
 if HAS_LOCAL and GeoAreaViewSet is not None:
     router.register(r"geoareas", GeoAreaViewSet, basename="geoareas")
 if HAS_LOCAL and ServiceCoverageViewSet is not None:
@@ -33,6 +35,5 @@ if HAS_LOCAL and ServiceCoverageViewSet is not None:
 
 
 urlpatterns = [
-    path("config/", config_view, name="config"),
     path("", include(router.urls)),
 ]

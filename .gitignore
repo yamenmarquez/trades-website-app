@@ -36,3 +36,6 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+ 
+# CMS local artifacts
+apps/cms/db.sqlite3
